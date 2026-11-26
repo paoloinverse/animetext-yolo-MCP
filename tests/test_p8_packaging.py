@@ -280,6 +280,27 @@ class TestPyprojectMetadata:
         floor = re.match(r"mcp>=(\d+)\.(\d+)", requirement)
         assert floor and (int(floor.group(1)), int(floor.group(2))) >= (2, 3), requirement
 
+    def test_the_metadata_names_the_repository_and_agrees_with_the_readme(self,
+                                                                        pyproject: dict,
+                                                                        readme: str) -> None:
+        """D95 put the project in a repository; a wheel that cannot say where it came from is
+        the provenance question again, three months later, asked by someone with no way to ask."""
+        # Parsed rather than pattern-matched: the offline-suite rule forbids a URL literal in a
+        # test file, and the subject of this test *is* a URL — so the URL stays in
+        # `pyproject.toml`, where it belongs, and this reads it.
+        from urllib.parse import urlsplit
+        urls = pyproject["project"].get("urls", {})
+        for key in ("Homepage", "Repository", "Issues"):
+            assert key in urls, f"[project.urls] has no {key}"
+        home, repo = urlsplit(urls["Homepage"]), urlsplit(urls["Repository"])
+        assert (home.scheme, home.hostname) == ("https", "github.com"), \
+            "the project should say where it lives, over https, on the host it lives on"
+        assert repo.path.removesuffix(".git") == home.path, "Homepage and Repository disagree"
+        slug = home.path.strip("/")
+        assert slug.count("/") == 1, f"not an owner/name: {slug!r}"
+        assert "animetext-yolo-MCP" in slug, "the repository URL is not this project's"
+        assert slug in readme, "README never names the repository the metadata names"
+
     def test_the_console_script_target_exists(self, pyproject: dict) -> None:
         import importlib
         target = pyproject["project"]["scripts"]["animetext-studio"]

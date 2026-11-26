@@ -51,7 +51,8 @@ SIGNOFF = {
     # deselected offline in ~41 s, and `-m models` 40 passed / 1 skipped offline in ~50 s.
     # 1258 from D95, which added the publication boundary: five tests that hold what the
     # repository may publish, and one secret scan that now knows GitHub's token shapes too.
-    "offline_tests": 1258,
+    # 1259 once the repository had a URL of its own to be checked against.
+    "offline_tests": 1259,
     "model_tests": 40,
     "deselected": 41,
     # 20 through P8 (PLAN's 18 + `unload_engines` + `warm_engines`); 21 from P9.3, which added

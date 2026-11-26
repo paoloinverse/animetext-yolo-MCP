@@ -44,7 +44,7 @@ means the claim is a number someone actually took.
 
 132 requirements, each with the evidence that proves it. A row cites a test node id, a command, or a check in `tests/test_p8_qa.py`; `TestTheTableItself::test_evidence_points_at_tests_that_exist` fails the suite if one of those stops existing.
 
-Suite at sign-off (2026-11-26): **1258 offline tests** (+40 `-m models`), 21 MCP tools, 6 resources, 14 error codes, 91 matrix faults. `test_the_suite_has_not_shrunk_since_sign_off` treats those as floors.
+Suite at sign-off (2026-11-26): **1259 offline tests** (+40 `-m models`), 21 MCP tools, 6 resources, 14 error codes, 91 matrix faults. `test_the_suite_has_not_shrunk_since_sign_off` treats those as floors.
 
 | Group | Requirements |
 |---|---|

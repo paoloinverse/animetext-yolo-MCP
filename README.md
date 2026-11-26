@@ -4,6 +4,11 @@ Detect the text blocks in an anime/manga page and read them — **in one app, wi
 a PySide6 window a human can watch, a headless CLI that prints one JSON document, and an MCP
 server an agent can drive. Every door moves the *same* state; nothing forks.
 
+**Repository:** <https://github.com/paoloinverse/animetext-yolo-MCP> — code, tests, docs and
+the build trail. A clone carries **no model weights and no scans** (decision D95): run
+`python scripts/fetch_models.py` to build the bundle, then `animetext-studio --doctor` to ask
+whether the machine can run it.
+
 ```text
 page.png ──► AnimeText YOLO (deepghs/AnimeText_yolo)  ──► boxes ──► Hayai Supernova crop OCR
              5 variants, n · s · m · l · x                          JustANormalTinkerer/hayai-ocr-v2.7-supernova
@@ -592,7 +597,7 @@ upstream behaviour, drafted as issues in [`docs/UPSTREAM.md`](docs/UPSTREAM.md).
 ## Development
 
 ```bash
-QT_QPA_PLATFORM=offscreen python -m pytest          # 1258 passed, 41 deselected, ~44 s
+QT_QPA_PLATFORM=offscreen python -m pytest          # 1259 passed, 41 deselected, ~39 s
 QT_QPA_PLATFORM=offscreen python -m pytest -m models  # real weights, offline, ~40 s
 python scripts/gen_error_matrix.py --check          # docs/ERROR-MATRIX.md matches the tests
 python scripts/gen_qa_report.py --check             # docs/QA.md matches the requirement table

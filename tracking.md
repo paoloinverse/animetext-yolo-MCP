@@ -24,7 +24,7 @@ Plan: [`PLAN.md`](PLAN.md) · Parts are implemented one per turn, in dependency 
 | P7 | MCP server + GUI bridge (18 tools, 6 resources) | ✅ **complete (T11)** | `StudioService` façade + `StudioServer` (stdio / streamable-HTTP, optional bearer token), 18 tools + 6 resources, activity log bridged into the GUI dock; demo client drives the GUI and the harness script is green. Suite at close: **639 offline + 15 real-model** |
 | P8 | Hardening, real-model tests, docs, packaging | ✅ **complete (T19)** | 8.1 result document **1.1** (`stage`) · 8.2 security/config hardening · 8.2b result **1.2** flags · 8.3 warm-up as a job + measured release · 8.4 error matrix (84 faults × 8 doors, D64–D71) · 8.5 real-model end-to-end (25 tests, D72) · 8.6 annotation polish (D73) · 8.7 README + packaging (D74–D76) · **8.8 final QA: 115 requirements traced in `docs/QA.md`, licence applied (D77), restart-required reporting (D78), the traceability table itself (D79)**. Suite at close: **1092 offline + 40 `-m models`** |
 | P9 | The five approved enhancements, and the trail | ✅ **complete (T20)** | 9.1 a corrupt bundled file is diagnosed, not mistaken for absent — retried once online, recorded in `status().detail` (D84, D85) · 9.2 the model list's provenance on every door + the fifth badge (D90) · 9.3 `reocr_blocks`, the 21st tool: one crop, no re-detection, a whole document back, right-click in the table (D81, D82) · 9.4 per-device cold latency, `--warm-devices`, `--preload-off` (D83, D86) · 9.5 `--doctor` + `docs/UPSTREAM.md` (D87–D92) · **9.6 the trail: matrix 84→91, checklist 115→131, floors, README / MCP / UPSTREAM, the sign-off** (D93 an option given `""` is refused, not ignored; D94 `--dump-mcp-tools PATH` writes to PATH). Suite at close: **1253 offline + 40 `-m models`** |
-| REPO | Putting the project in a repository, and deciding what a repository may hold (D95) | ✅ **committed locally; the push is the user's (T21)** | `.gitignore` rewritten: **no `animetext_studio/models/`** (the AnimeText weights are their author's to distribute; the Hayai snapshot is 604 MB alone and four files pass GitHub's 100 MB hard limit), **no `sample_scans/`**, no `.npm/`/`uploads/`/`research/`/`tmp*`, both token files named rather than globed. `examples/` carried this machine's absolute paths in 45 places, local account name included — now `/home/you/animetext-studio`. New `TestWhatTheRepositoryPublishes` checks `git ls-files` (the published set, not the folder); the secret scan now knows `ghp_…` and `github_pat_…` as well as `hf_…`. README/NOTICE tell a clone to run `scripts/fetch_models.py`. Checklist **131 → 132**, suite **1253 → 1258**. The push needs `contents:write`: the fine-grained token offered authenticates, cannot write, and cannot file into someone else's repository either |
+| REPO | Putting the project in a repository, and deciding what a repository may hold (D95) | ✅ **pushed: `github.com/paoloinverse/animetext-yolo-MCP`, `main` = `e95e8be` (T21)** | `.gitignore` rewritten: **no `animetext_studio/models/`** (the AnimeText weights are their author's to distribute; the Hayai snapshot is 604 MB alone and four files pass GitHub's 100 MB hard limit), **no `sample_scans/`**, no `.npm/`/`uploads/`/`research/`/`tmp*`, both token files named rather than globed. `examples/` carried this machine's absolute paths in 45 places, local account name included — now `/home/you/animetext-studio`. New `TestWhatTheRepositoryPublishes` checks `git ls-files` (the published set, not the folder); the secret scan now knows `ghp_…` and `github_pat_…` as well as `hf_…`. README/NOTICE tell a clone to run `scripts/fetch_models.py`. Checklist **131 → 132**, suite **1253 → 1259**; `[project.urls]` and the README now name the repository. Pushing needed `contents:write` — a pull-request token authenticates as the right account and is still refused (403) — and no fine-grained token of any shape can file into someone else's repository |
 
 ## Environment notes
 
@@ -1592,12 +1592,25 @@ leaves nothing to read — with a `git init` run inside the clone they execute a
 45 passed / 3 skipped in `test_p8_packaging.py`; 39 deselected rather than 41 because the two
 real-page cases have no scans to parametrise over. Every skip names the command that would
 make it run) · 100 files committed, 1.9 MB, largest 0.14 MB ·
-nothing over 100 MB, no weight, no scan, no machine path in the tracked set · `git ls-remote`
-against the repository succeeds and `git push` returns **403: "Permission to
-paoloinverse/animetext-yolo-MCP.git denied to paoloinverse"** — the token authenticates as the
-right account and has no `contents:write`, so the push goes to the user, from a local `main`
-that is ready to go.
+nothing over 100 MB, no weight, no scan, no machine path in the tracked set.
 
-**Next up:** the push (needs `contents:write`, or the user's own credentials); the two upstream
-issues (D92 — Issue 2 as a release request against #178); `scripts/bench_models.py` (ADDENDUM
-item E), still waiting on its corpus, its two revisions and its verdict metric.
+**The push, and what it took.** The first token reached GitHub as the right account and was
+still refused — **403, "Permission to paoloinverse/animetext-yolo-MCP.git denied to
+paoloinverse"** — because *pull requests read/write* is exactly that: it opens pull requests,
+it does not move commits. A second token, with `contents:write`, pushed `424eb27..e95e8be` in
+one go, and the remote was then read back rather than trusted: an **anonymous clone** of the
+public repository gives 99 tracked files, 2.2 MB, zero matches for `models/`, `sample_scans/`,
+`.onnx`, `.safetensors`, `.pt` or `token`, the filled-in copyright line in `LICENSE`, and
+`test_p8_packaging.py` green against a real published set (45 passed, 3 skipped — the three
+bundle checks, which a clone cannot run and says so about).
+
+Naming the repository then became the last piece of metadata that was still missing: a wheel
+that cannot say where it came from is the provenance question asked again three months later.
+`[project.urls]` now carries Homepage / Repository / Documentation / Issues, the README names
+the same place in its first screenful, and one more test holds the two together — parsed with
+`urlsplit`, because the offline-suite rule forbids a URL literal in a test file and this test's
+subject *is* a URL. Suite: **1259**.
+
+**Next up:** the two upstream issues (D92 — Issue 2 as a release request against #178, and
+only a *classic* token can file into someone else's repository); `scripts/bench_models.py`
+(ADDENDUM item E), still waiting on its corpus, its two revisions and its verdict metric.
