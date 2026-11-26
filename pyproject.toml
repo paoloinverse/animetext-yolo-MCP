@@ -1,0 +1,110 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "animetext-studio"
+version = "0.1.0"
+description = "Anime/manga text-block detection (AnimeText YOLO) + crop OCR (Hayai Supernova) with a PySide6 GUI and MCP remote control"
+readme = "README.md"
+requires-python = ">=3.10"
+# The application code is Apache-2.0 (`LICENSE` at the repository root, chosen by the
+# distributor on 2026-11-24 — this used to be an open question, and it was the right call to
+# leave it open until they answered it).
+#
+# This field covers the CODE, not the model weights shipped under
+# `animetext_studio/models/`: the AnimeText detection weights are GPL-3.0 and the Hayai OCR
+# snapshot Apache-2.0, and bundling does not relicense either of them. `NOTICE` names every
+# third-party component and its licence; README §Licensing states the boundary and the
+# slim-wheel path for distributors who cannot carry the GPL weights.
+#
+# PEP 639 form: an SPDX expression, not a trove classifier. setuptools >= 77 deprecated
+# `License ::` classifiers in favour of this field, so the classifier list below deliberately
+# has none (a test pins both halves of that). SPDX also needs the licence files named, or the
+# wheel carries no licence text.
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+keywords = ["ocr", "manga", "anime", "japanese", "text-detection", "yolo", "pyside6", "mcp",
+            "huggingface", "siglip2", "hayai", "animetext"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Multimedia :: Graphics",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Topic :: Text Processing",
+]
+dependencies = [
+    "pillow>=10.0",
+    "numpy>=1.24",
+]
+
+[project.optional-dependencies]
+gui = ["PySide6>=6.6"]
+detect = [
+    "dghs-imgutils>=0.9.0",
+    "onnxruntime>=1.17",
+    "huggingface_hub>=0.26",
+]
+# NOTE: NVIDIA Blackwell (RTX 50xx, sm_120) requires torch>=2.7 with CUDA 12.8 wheels:
+#   pip install torch --index-url https://download.pytorch.org/whl/cu128
+ocr = [
+    "torch>=2.4",
+    "transformers>=4.57",
+    "accelerate>=0.30",
+]
+# The floor is 2.3, not 1.9: the server imports `mcp.server.mcpserver.MCPServer`, which only
+# exists in the 2.x layout (1.x spells it `mcp.server.fastmcp`). Declaring 1.9 promised an
+# install that could not start (found in the P8.7 metadata review; the runtime hint already
+# said `mcp>=2.3`, the metadata did not).
+mcp = ["mcp>=2.3", "uvicorn>=0.30"]
+dev = [
+    "pytest>=8",
+    "pytest-qt>=4.4",
+    "pytest-timeout>=2.3",
+    "jsonschema>=4.21",
+]
+# Self-reference, so `all` cannot drift from the four extras it is the union of (the list it
+# replaced had to be edited twice per dependency change, and was a version behind when the
+# review found it).
+all = ["animetext-studio[gui,detect,ocr,mcp]"]
+
+[project.scripts]
+animetext-studio = "animetext_studio.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["animetext_studio*"]
+
+[tool.setuptools.package-data]
+animetext_studio = [
+    "schemas/*.json",
+    # D26: the on-premises bundle is part of the package on purpose. A built wheel is
+    # therefore ~1.3 GB (five detection variants + the Hayai snapshot) — that is the feature:
+    # an install (or a folder copy) is a complete offline installation. To build a slim wheel,
+    # build from a checkout whose models/ holds only MANIFEST.json and re-run
+    # scripts/fetch_models.py after install.
+    "models/MANIFEST.json",
+    # The OCR revision provenance. A `*` glob does not match a leading dot, so this file is
+    # invisible to every pattern below: without the line, an installed wheel loses the record
+    # of which Hayai revision it carries and `--model-status` silently falls back to the
+    # compiled-in OCR_REVISION. Pinned by tests/test_p8_packaging.py.
+    "models/*/.origin.json",
+    "models/*/*.json", "models/*/*.py", "models/*/*.md", "models/*/*.txt",
+    "models/*/*.onnx", "models/*/*.safetensors", "models/*/*.pt",
+    "models/*/*/*.json", "models/*/*/*.onnx", "models/*/*/*.safetensors", "models/*/*/*.pt",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Real-model tests are opt-in: `pytest -m models` (needs network + HF_TOKEN for the
+# gated detection repo). The default run stays offline and fast.
+addopts = "-m 'not models'"
+markers = [
+    "models: real-model integration tests. The weights are on premises (D26), so these run offline with no token; only the Hub-listing tests in test_models.py need one.",
+]

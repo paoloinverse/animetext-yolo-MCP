@@ -1,0 +1,283 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "animetext-studio/config-1.2",
+ "title": "AnimeText OCR Studio configuration (complete export document)",
+ "description": "AnimeText OCR Studio configuration - CANONICAL (emitted) shape, schema 1.1. This is what the application writes: every section and key is present and unknown keys are forbidden. 1.1 adds the on-premises model bundle keys paths.models_dir and paths.offline (decision D26/D27); schema 1.0 documents remain valid input because the change is purely additive. Inputs the application ACCEPTS are looser (sections optional, unknown keys allowed with a warning, integral floats coerced to ints); that shape is config-partial-1.1, derived from this document by config.partial_config_schema() and used for MCP set_config/import_config input validation.",
+ "type": "object",
+ "additionalProperties": false,
+ "required": [
+  "schema_version",
+  "detection",
+  "ocr",
+  "pipeline",
+  "gui",
+  "mcp",
+  "paths",
+  "hf"
+ ],
+ "properties": {
+  "schema_version": {
+   "enum": [
+    "1.2",
+    "1.1",
+    "1.0"
+   ],
+   "description": "1.2 is emitted by this build; 1.0 and 1.1 are still accepted on input."
+  },
+  "detection": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "model",
+    "iou_threshold",
+    "score_threshold",
+    "allow_dynamic"
+   ],
+   "properties": {
+    "model": {
+     "type": "string",
+     "minLength": 1,
+     "examples": [
+      "yolo12n_animetext",
+      "yolo12s_animetext",
+      "yolo12m_animetext",
+      "yolo12l_animetext",
+      "yolo12x_animetext"
+     ]
+    },
+    "iou_threshold": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 1
+    },
+    "score_threshold": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 1
+    },
+    "allow_dynamic": {
+     "type": "boolean",
+     "description": "Aspect-preserving YOLO preprocessing (better for tall manga pages)."
+    }
+   }
+  },
+  "ocr": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "device",
+    "max_patches",
+    "batch_size",
+    "max_new_tokens",
+    "crop_padding_px",
+    "normalize_nfkc"
+   ],
+   "properties": {
+    "device": {
+     "type": "string",
+     "pattern": "^(auto|cpu|cuda(:[0-9]+)?)$"
+    },
+    "max_patches": {
+     "oneOf": [
+      {
+       "const": "auto"
+      },
+      {
+       "type": "integer",
+       "enum": [
+        128,
+        192,
+        256,
+        384,
+        512
+       ]
+      }
+     ]
+    },
+    "batch_size": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 512
+    },
+    "max_new_tokens": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 1024
+    },
+    "crop_padding_px": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 64
+    },
+    "normalize_nfkc": {
+     "type": "boolean"
+    }
+   }
+  },
+  "pipeline": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "reading_order",
+    "min_box_area_px"
+   ],
+   "properties": {
+    "reading_order": {
+     "enum": [
+      "score",
+      "top_to_bottom",
+      "manga_rtl"
+     ]
+    },
+    "min_box_area_px": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 100000
+    }
+   }
+  },
+  "gui": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "overlay_visible",
+    "fill_opacity",
+    "labels_visible",
+    "hover_opacity",
+    "zoom_mode",
+    "zoom_percent"
+   ],
+   "properties": {
+    "overlay_visible": {
+     "type": "boolean"
+    },
+    "fill_opacity": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 1
+    },
+    "labels_visible": {
+     "type": "boolean"
+    },
+    "hover_opacity": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 1,
+     "description": "Opacity of the floating hover text panel (0.5 = 50% transparent)."
+    },
+    "zoom_mode": {
+     "enum": [
+      "fit",
+      "percent"
+     ]
+    },
+    "zoom_percent": {
+     "type": "integer",
+     "minimum": 10,
+     "maximum": 800
+    }
+   }
+  },
+  "mcp": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "enabled",
+    "transport",
+    "host",
+    "port",
+    "auth_token",
+    "log_capacity"
+   ],
+   "properties": {
+    "enabled": {
+     "type": "boolean"
+    },
+    "transport": {
+     "enum": [
+      "streamable-http",
+      "stdio",
+      "none"
+     ]
+    },
+    "host": {
+     "type": "string",
+     "minLength": 1
+    },
+    "port": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 65535
+    },
+    "auth_token": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "log_capacity": {
+     "type": "integer",
+     "minimum": 10,
+     "maximum": 10000,
+     "description": "Recent MCP tool calls kept in the activity log and log://mcp."
+    }
+   }
+  },
+  "paths": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "hf_cache_dir",
+    "last_image_dir",
+    "export_dir",
+    "models_dir",
+    "offline"
+   ],
+   "properties": {
+    "hf_cache_dir": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "last_image_dir": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "export_dir": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "models_dir": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "description": "On-premises model bundle root. null -> $ANIMETEXT_MODELS_DIR -> <package>/models. Weights found there are used instead of being downloaded (populated by scripts/fetch_models.py)."
+    },
+    "offline": {
+     "type": "boolean",
+     "description": "true -> never use the network: only bundled weights (or an already populated HF cache) may load; anything missing raises MODEL_NOT_FOUND."
+    }
+   }
+  },
+  "hf": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "token_env"
+   ],
+   "properties": {
+    "token_env": {
+     "type": "string",
+     "minLength": 1,
+     "description": "Environment variable holding the HF token. The token itself is never stored in config files."
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,881 @@
+{
+  "url": "http://127.0.0.1:8794/mcp",
+  "steps": [
+    {
+      "step": "initialize",
+      "server": "animetext-studio",
+      "version": "0.1.0",
+      "protocol": "2025-11-25"
+    },
+    {
+      "step": "get_status",
+      "arguments": {},
+      "response": {
+        "app": "animetext-studio",
+        "version": "0.1.0",
+        "result_schema_version": "1.0",
+        "config_schema_version": "1.1",
+        "busy": false,
+        "mock": true,
+        "offline": false,
+        "job": {
+          "job_id": "job-1",
+          "state": "done",
+          "stage": "done",
+          "percent": 100.0,
+          "message": "5 block(s)",
+          "busy": false,
+          "has_result": true,
+          "block_count": 5,
+          "error": null
+        },
+        "image": {
+          "source": "mcp-path",
+          "file_name": "sample_page.png",
+          "width": 900,
+          "height": 1300,
+          "sha256": "b35b8283c659417e3006e513a956359e8084b89cadd2dec7b041cd5bd4feef99"
+        },
+        "engines": [
+          {
+            "name": "detection",
+            "backend": "fake",
+            "device": "cpu",
+            "loaded": false,
+            "models": [
+              "yolo12m_animetext"
+            ]
+          },
+          {
+            "name": "ocr",
+            "backend": "fake",
+            "device": "cpu",
+            "loaded": false,
+            "models": [
+              "hayai-ocr-v2.7-supernova (mock)"
+            ]
+          }
+        ],
+        "models": {
+          "models_dir": "/home/you/animetext-studio/animetext_studio/models",
+          "exists": true,
+          "offline": false,
+          "detection_repo": "deepghs/AnimeText_yolo",
+          "detection_bundled": [
+            "yolo12n_animetext",
+            "yolo12s_animetext",
+            "yolo12m_animetext"
+          ],
+          "detection_variants": {
+            "yolo12n_animetext": {
+              "name": "yolo12n_animetext",
+              "bundled": true,
+              "complete": true,
+              "files": {
+                "model.onnx": true,
+                "threshold.json": true,
+                "labels.json": true,
+                "model_type.json": true
+              },
+              "path": "/home/you/animetext-studio/animetext_studio/models/animetext-yolo/yolo12n_animetext",
+              "bytes": 10502045
+            },
+            "yolo12s_animetext": {
+              "name": "yolo12s_animetext",
+              "bundled": true,
+              "complete": true,
+              "files": {
+                "model.onnx": true,
+                "threshold.json": true,
+                "labels.json": true,
+                "model_type.json": true
+              },
+              "path": "/home/you/animetext-studio/animetext_studio/models/animetext-yolo/yolo12s_animetext",
+              "bytes": 37199730
+            },
+            "yolo12m_animetext": {
+              "name": "yolo12m_animetext",
+              "bundled": true,
+              "complete": true,
+              "files": {
+                "model.onnx": true,
+                "threshold.json": true,
+                "labels.json": true,
+                "model_type.json": true
+              },
+              "path": "/home/you/animetext-studio/animetext_studio/models/animetext-yolo/yolo12m_animetext",
+              "bytes": 80709725
+            },
+            "yolo12l_animetext": {
+              "name": "yolo12l_animetext",
+              "bundled": false,
+              "complete": false,
+              "files": {
+                "model.onnx": false,
+                "threshold.json": false,
+                "labels.json": false,
+                "model_type.json": false
+              },
+              "path": "/home/you/animetext-studio/animetext_studio/models/animetext-yolo/yolo12l_animetext",
+              "bytes": 0
+            },
+            "yolo12x_animetext": {
+              "name": "yolo12x_animetext",
+              "bundled": false,
+              "complete": false,
+              "files": {
+                "model.onnx": false,
+                "threshold.json": false,
+                "labels.json": false,
+                "model_type.json": false
+              },
+              "path": "/home/you/animetext-studio/animetext_studio/models/animetext-yolo/yolo12x_animetext",
+              "bytes": 0
+            }
+          },
+          "ocr": {
+            "repo_id": "JustANormalTinkerer/hayai-ocr-v2.7-supernova",
+            "bundled": true,
+            "complete": true,
+            "missing": [],
+            "path": "/home/you/animetext-studio/animetext_studio/models/hayai-ocr-v2.7-supernova",
+            "bytes": 682490985,
+            "revision": "f5f0f617f5148f760074f743e25576f381992c34",
+            "weights_ok": true,
+            "tensors": 395
+          },
+          "total_bytes": 810902485,
+          "manifest": {
+            "detection_variants": [
+              "yolo12n_animetext",
+              "yolo12s_animetext",
+              "yolo12m_animetext"
+            ],
+            "files": [
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/animetext-yolo/yolo12m_animetext/labels.json",
+                "repo_id": "deepghs/AnimeText_yolo",
+                "revision": "a180c191bfdb9f0e31b57e7de567e7b6bac50f84",
+                "sha256": "2ce92deb3b10e057ac3a6127a94e269211fdca699d03b7d02daa22abd6873e94",
+                "size": 20
+              },
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/animetext-yolo/yolo12m_animetext/model.onnx",
+                "repo_id": "deepghs/AnimeText_yolo",
+                "revision": "a180c191bfdb9f0e31b57e7de567e7b6bac50f84",
+                "sha256": "c1ab3098b067ffa0368d9a52520e5e5b20faacd25a780aa9405e743f788b29db",
+                "size": 80709725
+              },
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/animetext-yolo/yolo12m_animetext/model_type.json",
+                "repo_id": "deepghs/AnimeText_yolo",
+                "revision": "a180c191bfdb9f0e31b57e7de567e7b6bac50f84",
+                "sha256": "90ee659505b714173f3bece4b47c31fc8d26c8c2f1db95eb5ef96677c106fcd4",
+                "size": 28
+              },
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/animetext-yolo/yolo12m_animetext/threshold.json",
+                "repo_id": "deepghs/AnimeText_yolo",
+                "revision": "a180c191bfdb9f0e31b57e7de567e7b6bac50f84",
+                "sha256": "e9d2773f6066523ba959a8e40b6e11f89bfd827366e9cd5e1dac660dbf5e0cfb",
+                "size": 48
+              },
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/animetext-yolo/yolo12n_animetext/labels.json",
+                "repo_id": "deepghs/AnimeText_yolo",
+                "revision": "a180c191bfdb9f0e31b57e7de567e7b6bac50f84",
+                "sha256": "2ce92deb3b10e057ac3a6127a94e269211fdca699d03b7d02daa22abd6873e94",
+                "size": 20
+              },
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/animetext-yolo/yolo12n_animetext/model.onnx",
+                "repo_id": "deepghs/AnimeText_yolo",
+                "revision": "a180c191bfdb9f0e31b57e7de567e7b6bac50f84",
+                "sha256": "1964b71a8ff4f12920ac4fba9abde57ed7b0ef5c41bd50a78df85b7dc19c2e14",
+                "size": 10502045
+              },
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/animetext-yolo/yolo12n_animetext/model_type.json",
+                "repo_id": "deepghs/AnimeText_yolo",
+                "revision": "a180c191bfdb9f0e31b57e7de567e7b6bac50f84",
+                "sha256": "90ee659505b714173f3bece4b47c31fc8d26c8c2f1db95eb5ef96677c106fcd4",
+                "size": 28
+              },
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/animetext-yolo/yolo12n_animetext/threshold.json",
+                "repo_id": "deepghs/AnimeText_yolo",
+                "revision": "a180c191bfdb9f0e31b57e7de567e7b6bac50f84",
+                "sha256": "c440321f30a9a6d68153b5cf3b147047366acdf524fc1d4f66a7a4888a5a46d9",
+                "size": 48
+              },
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/animetext-yolo/yolo12s_animetext/labels.json",
+                "repo_id": "deepghs/AnimeText_yolo",
+                "revision": "a180c191bfdb9f0e31b57e7de567e7b6bac50f84",
+                "sha256": "2ce92deb3b10e057ac3a6127a94e269211fdca699d03b7d02daa22abd6873e94",
+                "size": 20
+              },
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/animetext-yolo/yolo12s_animetext/model.onnx",
+                "repo_id": "deepghs/AnimeText_yolo",
+                "revision": "a180c191bfdb9f0e31b57e7de567e7b6bac50f84",
+                "sha256": "836da98a0fb1bc5f9b3ce38812cebe59e9bf11bfbeb22aefdc01ea10060a36b1",
+                "size": 37199730
+              },
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/animetext-yolo/yolo12s_animetext/model_type.json",
+                "repo_id": "deepghs/AnimeText_yolo",
+                "revision": "a180c191bfdb9f0e31b57e7de567e7b6bac50f84",
+                "sha256": "90ee659505b714173f3bece4b47c31fc8d26c8c2f1db95eb5ef96677c106fcd4",
+                "size": 28
+              },
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/animetext-yolo/yolo12s_animetext/threshold.json",
+                "repo_id": "deepghs/AnimeText_yolo",
+                "revision": "a180c191bfdb9f0e31b57e7de567e7b6bac50f84",
+                "sha256": "61034acc5e1bc1657e069f50c9785f90eac64551f1a0ed62178d8821e74da705",
+                "size": 48
+              },
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/hayai-ocr-v2.7-supernova/README.md",
+                "repo_id": "JustANormalTinkerer/hayai-ocr-v2.7-supernova",
+                "revision": "f5f0f617f5148f760074f743e25576f381992c34",
+                "sha256": "8d6366c076accb034068d4ee2d4325bc62f0ba251a2c22cbf3ac373dcd4bba2a",
+                "size": 22328
+              },
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/hayai-ocr-v2.7-supernova/config.json",
+                "repo_id": "JustANormalTinkerer/hayai-ocr-v2.7-supernova",
+                "revision": "f5f0f617f5148f760074f743e25576f381992c34",
+                "sha256": "e5cf0e59b888ef29155edb40b28f42184b1e22523fca3b38ba62261e743cb91b",
+                "size": 540
+              },
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/hayai-ocr-v2.7-supernova/configuration_hayai.py",
+                "repo_id": "JustANormalTinkerer/hayai-ocr-v2.7-supernova",
+                "revision": "f5f0f617f5148f760074f743e25576f381992c34",
+                "sha256": "bbff66c6a1bb7ee2f8097359992546e1c440b65285c608c22c41b204d13927fe",
+                "size": 842
+              },
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/hayai-ocr-v2.7-supernova/model.safetensors",
+                "repo_id": "JustANormalTinkerer/hayai-ocr-v2.7-supernova",
+                "revision": "f5f0f617f5148f760074f743e25576f381992c34",
+                "sha256": "a531fc49ff0ec978f0c1eb377d853bdbe9a400559afc1d15de53d1e1bf4767b1",
+                "size": 633564960
+              },
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/hayai-ocr-v2.7-supernova/modeling_hayai.py",
+                "repo_id": "JustANormalTinkerer/hayai-ocr-v2.7-supernova",
+                "revision": "f5f0f617f5148f760074f743e25576f381992c34",
+                "sha256": "106da8660e78aec0b6174d71e9045a2ad0022691e8a5bd0b2e9cb157b50d987a",
+                "size": 149966
+              },
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/hayai-ocr-v2.7-supernova/preprocessor_config.json",
+                "repo_id": "JustANormalTinkerer/hayai-ocr-v2.7-supernova",
+                "revision": "f5f0f617f5148f760074f743e25576f381992c34",
+                "sha256": "bd64b7f81adb30a4d6ab4a24cda78ddad3eced0c1dfa6c58d87ed10dd069de95",
+                "size": 312
+              },
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/hayai-ocr-v2.7-supernova/processing_hayai.py",
+                "repo_id": "JustANormalTinkerer/hayai-ocr-v2.7-supernova",
+                "revision": "f5f0f617f5148f760074f743e25576f381992c34",
+                "sha256": "b7ab25241456e6d3e20d74dedb33c22ef7aeb9c841d378c3f8da096029fc0142",
+                "size": 18135
+              },
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/hayai-ocr-v2.7-supernova/processor_config.json",
+                "repo_id": "JustANormalTinkerer/hayai-ocr-v2.7-supernova",
+                "revision": "f5f0f617f5148f760074f743e25576f381992c34",
+                "sha256": "0da16f576f41bc6ab34f456d2cc2a9ef89b9076d68b9e86b612bfb94da5478cb",
+                "size": 118
+              },
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/hayai-ocr-v2.7-supernova/tokenizer.json",
+                "repo_id": "JustANormalTinkerer/hayai-ocr-v2.7-supernova",
+                "revision": "f5f0f617f5148f760074f743e25576f381992c34",
+                "sha256": "f8a0a909c628a684fe463094614e236a8b1d3609e7770f77e7beafaf1056bf13",
+                "size": 1247253
+              },
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/hayai-ocr-v2.7-supernova/tokenizer_config.json",
+                "repo_id": "JustANormalTinkerer/hayai-ocr-v2.7-supernova",
+                "revision": "f5f0f617f5148f760074f743e25576f381992c34",
+                "sha256": "6fb6c69afaedf1275872d3e62e276fd4467bd00da7a84cbbb5566a2cd28f58f6",
+                "size": 244
+              },
+              {
+                "path": "/home/you/animetext-studio/animetext_studio/models/hayai-ocr-v2.7-supernova/yolo26m-text.pt",
+                "repo_id": "JustANormalTinkerer/hayai-ocr-v2.7-supernova",
+                "revision": "f5f0f617f5148f760074f743e25576f381992c34",
+                "sha256": "23c397796a959f95db7fa60a2919e91e7798b23d0299c222e40ec2636e423f5e",
+                "size": 47485989
+              }
+            ],
+            "models_root": "/home/you/animetext-studio/animetext_studio/models",
+            "ocr": true,
+            "revisions": {
+              "JustANormalTinkerer/hayai-ocr-v2.7-supernova": "f5f0f617f5148f760074f743e25576f381992c34",
+              "deepghs/AnimeText_yolo": "a180c191bfdb9f0e31b57e7de567e7b6bac50f84"
+            },
+            "tool": "animetext-studio scripts/fetch_models.py",
+            "usage": "animetext-studio --model-status | --offline"
+          }
+        },
+        "mcp": {
+          "running": true,
+          "transport": "streamable-http",
+          "host": "127.0.0.1",
+          "port": 8794,
+          "url": "http://127.0.0.1:8794/mcp",
+          "auth_required": false,
+          "endpoint": "/mcp",
+          "started_at": "2026-11-22T02:38:25+0100",
+          "calls": 6,
+          "errors": 1
+        },
+        "gui": false,
+        "has_result": true,
+        "block_count": 5
+      }
+    },
+    {
+      "step": "list_models",
+      "arguments": {},
+      "response": {
+        "detection_repo": "deepghs/AnimeText_yolo",
+        "ocr_repo": "JustANormalTinkerer/hayai-ocr-v2.7-supernova",
+        "ocr_revision": "f5f0f617f5148f760074f743e25576f381992c34",
+        "default_model": "yolo12m_animetext",
+        "selected_model": "yolo12m_animetext",
+        "offline": false,
+        "models": [
+          {
+            "name": "yolo12n_animetext",
+            "known": true,
+            "params_m": 2.57,
+            "flops_g": 6.48,
+            "f1": 0.86,
+            "recommended_score_threshold": 0.251,
+            "source": "bundled",
+            "bundled": true,
+            "cached": true,
+            "loaded": false,
+            "available": true,
+            "size_mb": 10.0,
+            "note": ""
+          },
+          {
+            "name": "yolo12s_animetext",
+            "known": true,
+            "params_m": 9.25,
+            "flops_g": 21.5,
+            "f1": 0.88,
+            "recommended_score_threshold": 0.272,
+            "source": "bundled",
+            "bundled": true,
+            "cached": true,
+            "loaded": false,
+            "available": true,
+            "size_mb": 35.5,
+            "note": ""
+          },
+          {
+            "name": "yolo12m_animetext",
+            "known": true,
+            "params_m": 20.1,
+            "flops_g": 67.7,
+            "f1": 0.89,
+            "recommended_score_threshold": 0.299,
+            "source": "bundled",
+            "bundled": true,
+            "cached": true,
+            "loaded": true,
+            "available": true,
+            "size_mb": 77.0,
+            "note": ""
+          },
+          {
+            "name": "yolo12l_animetext",
+            "known": true,
+            "params_m": 26.4,
+            "flops_g": 89.4,
+            "f1": 0.89,
+            "recommended_score_threshold": 0.426,
+            "source": "hf",
+            "bundled": false,
+            "cached": false,
+            "loaded": false,
+            "available": true,
+            "size_mb": null,
+            "note": ""
+          },
+          {
+            "name": "yolo12x_animetext",
+            "known": true,
+            "params_m": 59.1,
+            "flops_g": 200.0,
+            "f1": 0.9,
+            "recommended_score_threshold": 0.425,
+            "source": "hf",
+            "bundled": false,
+            "cached": false,
+            "loaded": false,
+            "available": true,
+            "size_mb": null,
+            "note": ""
+          }
+        ],
+        "loaded_model": "yolo12m_animetext",
+        "ocr": {
+          "repo": "JustANormalTinkerer/hayai-ocr-v2.7-supernova",
+          "bundled": true,
+          "revision": "f5f0f617f5148f760074f743e25576f381992c34"
+        }
+      }
+    },
+    {
+      "step": "set_config",
+      "arguments": {
+        "patch": {
+          "detection": {
+            "score_threshold": 0.2,
+            "iou_threshold": 0.3
+          },
+          "pipeline": {
+            "reading_order": "manga_rtl"
+          }
+        }
+      },
+      "response": {
+        "config": {
+          "schema_version": "1.1",
+          "detection": {
+            "model": "yolo12m_animetext",
+            "iou_threshold": 0.3,
+            "score_threshold": 0.2,
+            "allow_dynamic": false
+          },
+          "ocr": {
+            "device": "auto",
+            "max_patches": "auto",
+            "batch_size": 16,
+            "max_new_tokens": 128,
+            "crop_padding_px": 2,
+            "normalize_nfkc": false
+          },
+          "pipeline": {
+            "reading_order": "manga_rtl",
+            "min_box_area_px": 16
+          },
+          "gui": {
+            "overlay_visible": true,
+            "fill_opacity": 0.18,
+            "labels_visible": true,
+            "hover_opacity": 0.5,
+            "zoom_mode": "fit",
+            "zoom_percent": 100
+          },
+          "mcp": {
+            "enabled": true,
+            "transport": "streamable-http",
+            "host": "127.0.0.1",
+            "port": 8794,
+            "auth_token": null
+          },
+          "paths": {
+            "hf_cache_dir": null,
+            "last_image_dir": null,
+            "export_dir": null,
+            "models_dir": null,
+            "offline": false
+          },
+          "hf": {
+            "token_env": "HF_TOKEN"
+          }
+        },
+        "changed": [
+          "detection.iou_threshold",
+          "detection.score_threshold"
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "step": "load_image",
+      "arguments": {
+        "path": "examples/sample_page.png"
+      },
+      "response": {
+        "image": {
+          "source": "mcp-path",
+          "file_name": "sample_page.png",
+          "width": 900,
+          "height": 1300,
+          "sha256": "b35b8283c659417e3006e513a956359e8084b89cadd2dec7b041cd5bd4feef99"
+        },
+        "loaded": true
+      }
+    },
+    {
+      "step": "run_pipeline",
+      "arguments": {
+        "include_annotated_image": true
+      },
+      "response": {
+        "result": {
+          "schema_version": "1.0",
+          "created_at": "2026-11-22T02:38:33+01:00",
+          "image": {
+            "source": "mcp-path",
+            "file_name": "sample_page.png",
+            "width": 900,
+            "height": 1300,
+            "sha256": "b35b8283c659417e3006e513a956359e8084b89cadd2dec7b041cd5bd4feef99"
+          },
+          "detection": {
+            "repo": "deepghs/AnimeText_yolo",
+            "model": "yolo12m_animetext",
+            "iou_threshold": 0.3,
+            "score_threshold": 0.2,
+            "allow_dynamic": false,
+            "backend": "fake"
+          },
+          "ocr": {
+            "repo": "JustANormalTinkerer/hayai-ocr-v2.7-supernova",
+            "device": "cpu",
+            "max_patches": "auto",
+            "batch_size": 16,
+            "max_new_tokens": 128,
+            "crop_padding_px": 2,
+            "normalize_nfkc": false
+          },
+          "timing_ms": {
+            "detect": 0,
+            "ocr": 3,
+            "total": 4
+          },
+          "blocks": [
+            {
+              "id": 0,
+              "bbox": {
+                "x0": 556,
+                "y0": 63,
+                "x1": 704,
+                "y1": 392
+              },
+              "label": "text_block",
+              "score": 0.93,
+              "text": "何!? その力は",
+              "reading_order": 0,
+              "color": "#E6194B",
+              "error": null
+            },
+            {
+              "id": 1,
+              "bbox": {
+                "x0": 88,
+                "y0": 154,
+                "x1": 218,
+                "y1": 548
+              },
+              "label": "text_block",
+              "score": 0.88,
+              "text": "まだまだよ、私は",
+              "reading_order": 1,
+              "color": "#3CB44B",
+              "error": null
+            },
+            {
+              "id": 2,
+              "bbox": {
+                "x0": 628,
+                "y0": 713,
+                "x1": 812,
+                "y1": 1146
+              },
+              "label": "text_block",
+              "score": 0.66,
+              "text": "決戦の前夜",
+              "reading_order": 2,
+              "color": "#FFE119",
+              "error": null
+            },
+            {
+              "id": 3,
+              "bbox": {
+                "x0": 358,
+                "y0": 583,
+                "x1": 506,
+                "y1": 977
+              },
+              "label": "text_block",
+              "score": 0.81,
+              "text": "결전의 전야",
+              "reading_order": 3,
+              "color": "#4363D8",
+              "error": null
+            },
+            {
+              "id": 4,
+              "bbox": {
+                "x0": 70,
+                "y0": 778,
+                "x1": 200,
+                "y1": 1198
+              },
+              "label": "text_block",
+              "score": 0.74,
+              "text": "風が止んだ",
+              "reading_order": 4,
+              "color": "#F58231",
+              "error": null
+            }
+          ],
+          "block_count": 5
+        },
+        "job_id": "job-2",
+        "block_count": 5,
+        "timing_ms": {
+          "detect": 0,
+          "ocr": 3,
+          "total": 4
+        },
+        "annotated_image": {
+          "mime_type": "image/png",
+          "width": 900,
+          "height": 1300,
+          "bytes": 68649,
+          "blocks": 5,
+          "scale": 1.0
+        },
+        "progress_events": 6
+      }
+    },
+    {
+      "step": "get_result",
+      "arguments": {
+        "block_ids": [
+          0,
+          1
+        ]
+      },
+      "response": {
+        "result": {
+          "schema_version": "1.0",
+          "created_at": "2026-11-22T02:38:33+01:00",
+          "image": {
+            "source": "mcp-path",
+            "file_name": "sample_page.png",
+            "width": 900,
+            "height": 1300,
+            "sha256": "b35b8283c659417e3006e513a956359e8084b89cadd2dec7b041cd5bd4feef99"
+          },
+          "detection": {
+            "repo": "deepghs/AnimeText_yolo",
+            "model": "yolo12m_animetext",
+            "iou_threshold": 0.3,
+            "score_threshold": 0.2,
+            "allow_dynamic": false,
+            "backend": "fake"
+          },
+          "ocr": {
+            "repo": "JustANormalTinkerer/hayai-ocr-v2.7-supernova",
+            "device": "cpu",
+            "max_patches": "auto",
+            "batch_size": 16,
+            "max_new_tokens": 128,
+            "crop_padding_px": 2,
+            "normalize_nfkc": false
+          },
+          "timing_ms": {
+            "detect": 0,
+            "ocr": 3,
+            "total": 4
+          },
+          "blocks": [
+            {
+              "id": 0,
+              "bbox": {
+                "x0": 556,
+                "y0": 63,
+                "x1": 704,
+                "y1": 392
+              },
+              "label": "text_block",
+              "score": 0.93,
+              "text": "何!? その力は",
+              "reading_order": 0,
+              "color": "#E6194B",
+              "error": null
+            },
+            {
+              "id": 1,
+              "bbox": {
+                "x0": 88,
+                "y0": 154,
+                "x1": 218,
+                "y1": 548
+              },
+              "label": "text_block",
+              "score": 0.88,
+              "text": "まだまだよ、私は",
+              "reading_order": 1,
+              "color": "#3CB44B",
+              "error": null
+            }
+          ],
+          "block_count": 5
+        },
+        "block_count": 2,
+        "filtered": true
+      }
+    },
+    {
+      "step": "get_annotated_image",
+      "arguments": {
+        "scale": 0.5
+      },
+      "response": {
+        "mime_type": "image/png",
+        "width": 450,
+        "height": 650,
+        "bytes": 56748,
+        "blocks": 5,
+        "scale": 0.5
+      }
+    },
+    {
+      "step": "highlight_block",
+      "arguments": {
+        "id": 0,
+        "duration_ms": 400
+      },
+      "response": {
+        "ok": true,
+        "block_id": 0,
+        "found": true,
+        "duration_ms": 400,
+        "text_preview": "何!? その力は"
+      }
+    },
+    {
+      "step": "set_overlay_visible",
+      "arguments": {
+        "visible": false
+      },
+      "response": {
+        "gui": {
+          "overlay_visible": false,
+          "fill_opacity": 0.18,
+          "labels_visible": true,
+          "hover_opacity": 0.5,
+          "zoom_mode": "fit",
+          "zoom_percent": 100
+        },
+        "overlay_visible": false,
+        "labels_visible": true,
+        "fill_opacity": 0.18
+      }
+    },
+    {
+      "step": "set_overlay_visible",
+      "arguments": {
+        "visible": true
+      },
+      "response": {
+        "gui": {
+          "overlay_visible": true,
+          "fill_opacity": 0.18,
+          "labels_visible": true,
+          "hover_opacity": 0.5,
+          "zoom_mode": "fit",
+          "zoom_percent": 100
+        },
+        "overlay_visible": true,
+        "labels_visible": true,
+        "fill_opacity": 0.18
+      }
+    },
+    {
+      "step": "set_zoom",
+      "arguments": {
+        "mode": "percent",
+        "percent": 110
+      },
+      "response": {
+        "zoom_mode": "percent",
+        "zoom_percent": 110,
+        "scale": 1.0
+      }
+    },
+    {
+      "step": "read-resource",
+      "uri": "config://current",
+      "bytes": 915
+    },
+    {
+      "step": "read-resource",
+      "uri": "result://latest",
+      "bytes": 2175
+    },
+    {
+      "step": "read-resource",
+      "uri": "log://mcp",
+      "bytes": 6418
+    },
+    {
+      "step": "reset",
+      "arguments": {},
+      "response": {
+        "ok": true,
+        "cleared": [
+          "result",
+          "image"
+        ]
+      }
+    },
+    {
+      "step": "negative",
+      "checks": [
+        "set_zoom(mode=sideways) -> INVALID_ARGUMENT",
+        "get_result(block_ids=[9999]) -> INVALID_ARGUMENT",
+        "import_config() -> INVALID_ARGUMENT"
+      ]
+    }
+  ],
+  "progress": [
+    {
+      "percent": 50.0,
+      "total": 100.0,
+      "message": "5 crop(s) for OCR"
+    },
+    {
+      "percent": 50.0,
+      "total": 100.0,
+      "message": "reading 5 crop(s)"
+    },
+    {
+      "percent": 95.0,
+      "total": 100.0,
+      "message": "5/5 crops (mock)"
+    },
+    {
+      "percent": 95.0,
+      "total": 100.0,
+      "message": "5 crop(s) read"
+    },
+    {
+      "percent": 100.0,
+      "total": 100.0,
+      "message": "5 block(s) with text"
+    },
+    {
+      "percent": 100.0,
+      "total": 100.0,
+      "message": "5 block(s)"
+    }
+  ]
+}

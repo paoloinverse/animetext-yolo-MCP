@@ -1,0 +1,2110 @@
+{
+  "catalogVersion": "1.0",
+  "server": {
+    "name": "animetext-studio",
+    "version": "0.1.0"
+  },
+  "transport": {
+    "default": "streamable-http",
+    "available": [
+      "streamable-http",
+      "stdio",
+      "none"
+    ],
+    "endpoint": "/mcp",
+    "host": "127.0.0.1",
+    "port": 8765
+  },
+  "errorShape": {
+    "code": "string (ErrorCode)",
+    "message": "string",
+    "details": "object (optional)"
+  },
+  "errorCodes": [
+    "NO_IMAGE",
+    "BUSY",
+    "CANCELLED",
+    "INVALID_IMAGE",
+    "INVALID_CONFIG",
+    "INVALID_ARGUMENT",
+    "MODEL_NOT_FOUND",
+    "HF_AUTH_REQUIRED",
+    "DOWNLOAD_FAILED",
+    "ENGINE_LOAD_FAILED",
+    "OCR_FAILED",
+    "IO_ERROR",
+    "NOT_IMPLEMENTED",
+    "INTERNAL"
+  ],
+  "tools": [
+    {
+      "name": "cancel_job",
+      "description": "Request cancellation of the running job. Returns the job id and the state; `cancelled: false` when there was nothing to cancel (that is not an error).",
+      "annotations": {
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "properties": {},
+        "title": "cancel_jobArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "cancelled": {
+            "title": "Cancelled",
+            "type": "boolean"
+          },
+          "job_id": {
+            "default": "",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "state": {
+            "default": "",
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "cancelled"
+        ],
+        "title": "CancelResult",
+        "type": "object"
+      },
+      "guiEffect": "progress bar aborts, log",
+      "flash": [
+        "progress"
+      ]
+    },
+    {
+      "name": "detect",
+      "description": "Stage 1 only: detect text blocks and return the boxes, skipping OCR. Runs the same single-flight job path as run_pipeline (so it is BUSY while a job is running) and shows the boxes on the canvas. Overrides are applied to the live config.",
+      "annotations": {
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "properties": {
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Detection model name.",
+            "title": "Model"
+          },
+          "iou_threshold": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "NMS IoU threshold.",
+            "title": "Iou Threshold"
+          },
+          "score_threshold": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Detector confidence threshold.",
+            "title": "Score Threshold"
+          },
+          "allow_dynamic": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Dynamic input size (tall pages: more boxes, slower).",
+            "title": "Allow Dynamic"
+          }
+        },
+        "title": "detectArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "$defs": {
+          "BBoxModel": {
+            "additionalProperties": false,
+            "properties": {
+              "x0": {
+                "title": "X0",
+                "type": "integer"
+              },
+              "y0": {
+                "title": "Y0",
+                "type": "integer"
+              },
+              "x1": {
+                "title": "X1",
+                "type": "integer"
+              },
+              "y1": {
+                "title": "Y1",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "x0",
+              "y0",
+              "x1",
+              "y1"
+            ],
+            "title": "BBoxModel",
+            "type": "object"
+          },
+          "DetectionItem": {
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "title": "Id",
+                "type": "integer"
+              },
+              "bbox": {
+                "$ref": "#/$defs/BBoxModel"
+              },
+              "label": {
+                "title": "Label",
+                "type": "string"
+              },
+              "score": {
+                "title": "Score",
+                "type": "number"
+              }
+            },
+            "required": [
+              "id",
+              "bbox",
+              "label",
+              "score"
+            ],
+            "title": "DetectionItem",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "detections": {
+            "items": {
+              "$ref": "#/$defs/DetectionItem"
+            },
+            "title": "Detections",
+            "type": "array"
+          },
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "model": {
+            "title": "Model",
+            "type": "string"
+          },
+          "iou_threshold": {
+            "title": "Iou Threshold",
+            "type": "number"
+          },
+          "score_threshold": {
+            "title": "Score Threshold",
+            "type": "number"
+          },
+          "allow_dynamic": {
+            "title": "Allow Dynamic",
+            "type": "boolean"
+          },
+          "timing_ms": {
+            "title": "Timing Ms",
+            "type": "integer"
+          },
+          "job_id": {
+            "default": "",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "dropped_small": {
+            "default": 0,
+            "title": "Dropped Small",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "detections",
+          "count",
+          "model",
+          "iou_threshold",
+          "score_threshold",
+          "allow_dynamic",
+          "timing_ms"
+        ],
+        "title": "DetectResult",
+        "type": "object"
+      },
+      "guiEffect": "boxes drawn on the output canvas",
+      "flash": [
+        "canvas"
+      ]
+    },
+    {
+      "name": "export_config",
+      "description": "Return the live config; if `path` is given, also write it there (parents created). `redact_secrets` replaces secret values (mcp.auth_token) with the `<redacted>` placeholder in the file and in the reply, and lists what it hid.",
+      "annotations": {
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "properties": {
+          "path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Optional file to write the JSON to.",
+            "title": "Path"
+          },
+          "redact_secrets": {
+            "default": false,
+            "description": "Replace secrets with the <redacted> placeholder. Importing such a file keeps the app's current token instead of setting the literal placeholder.",
+            "title": "Redact Secrets",
+            "type": "boolean"
+          }
+        },
+        "title": "export_configArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "config": {
+            "additionalProperties": true,
+            "title": "Config",
+            "type": "object"
+          },
+          "path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Path"
+          },
+          "bytes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Bytes"
+          },
+          "redacted": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Redacted",
+            "type": "array"
+          }
+        },
+        "required": [
+          "config"
+        ],
+        "title": "ExportConfigResult",
+        "type": "object"
+      },
+      "guiEffect": "Export button flash",
+      "flash": [
+        "export_button"
+      ]
+    },
+    {
+      "name": "get_annotated_image",
+      "description": "The current result drawn over the page, as a PNG image content block; metadata (size, block count, scale) comes back as structured content.",
+      "annotations": {
+        "readOnlyHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "properties": {
+          "scale": {
+            "anyOf": [
+              {
+                "maximum": 8.0,
+                "minimum": 0.05,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Render scale (1.0 = full resolution of the source page).",
+            "title": "Scale"
+          }
+        },
+        "title": "get_annotated_imageArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": false,
+        "description": "Metadata for the PNG that travels as MCP *image content*; the pixels are never part\nof the structured content (a full-resolution page would swamp a chat context).",
+        "properties": {
+          "mime_type": {
+            "default": "image/png",
+            "title": "Mime Type",
+            "type": "string"
+          },
+          "width": {
+            "title": "Width",
+            "type": "integer"
+          },
+          "height": {
+            "title": "Height",
+            "type": "integer"
+          },
+          "bytes": {
+            "title": "Bytes",
+            "type": "integer"
+          },
+          "blocks": {
+            "title": "Blocks",
+            "type": "integer"
+          },
+          "scale": {
+            "default": 1.0,
+            "title": "Scale",
+            "type": "number"
+          }
+        },
+        "required": [
+          "width",
+          "height",
+          "bytes",
+          "blocks"
+        ],
+        "title": "AnnotatedImageMeta",
+        "type": "object"
+      },
+      "guiEffect": "canvas flash",
+      "flash": [
+        "canvas"
+      ]
+    },
+    {
+      "name": "get_config",
+      "description": "The live configuration document (config.schema.json, schema_version 1.2).",
+      "annotations": {
+        "readOnlyHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "properties": {},
+        "title": "get_configArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "config": {
+            "additionalProperties": true,
+            "title": "Config",
+            "type": "object"
+          },
+          "schema_version": {
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "config",
+          "schema_version"
+        ],
+        "title": "GetConfigResult",
+        "type": "object"
+      },
+      "guiEffect": "activity log",
+      "flash": []
+    },
+    {
+      "name": "get_image_info",
+      "description": "The current page: source, file name, size and sha256. NO_IMAGE when nothing is loaded.",
+      "annotations": {
+        "readOnlyHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "properties": {},
+        "title": "get_image_infoArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "$defs": {
+          "ImageInfoModel": {
+            "additionalProperties": false,
+            "description": "`image` section of the result document (PLAN 2.1).",
+            "properties": {
+              "source": {
+                "title": "Source",
+                "type": "string"
+              },
+              "file_name": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "File Name"
+              },
+              "width": {
+                "title": "Width",
+                "type": "integer"
+              },
+              "height": {
+                "title": "Height",
+                "type": "integer"
+              },
+              "sha256": {
+                "title": "Sha256",
+                "type": "string"
+              }
+            },
+            "required": [
+              "source",
+              "width",
+              "height",
+              "sha256"
+            ],
+            "title": "ImageInfoModel",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "image": {
+            "$ref": "#/$defs/ImageInfoModel"
+          }
+        },
+        "required": [
+          "image"
+        ],
+        "title": "ImageInfoResult",
+        "type": "object"
+      },
+      "guiEffect": "activity log",
+      "flash": []
+    },
+    {
+      "name": "get_result",
+      "description": "The latest result document (result.schema.json, schema_version 1.2); `block_ids` returns only those blocks (INVALID_ARGUMENT when none of them exist). Each block carries `flags` (`possible_truncation`) and `contained_in` (id of the tightest larger box covering it) — observations, never edits.",
+      "annotations": {
+        "readOnlyHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "properties": {
+          "block_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Block ids to keep (default: all).",
+            "title": "Block Ids"
+          }
+        },
+        "title": "get_resultArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "result": {
+            "additionalProperties": true,
+            "title": "Result",
+            "type": "object"
+          },
+          "block_count": {
+            "title": "Block Count",
+            "type": "integer"
+          },
+          "filtered": {
+            "default": false,
+            "title": "Filtered",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "result",
+          "block_count"
+        ],
+        "title": "GetResultResult",
+        "type": "object"
+      },
+      "guiEffect": "JSON pane flash",
+      "flash": [
+        "json"
+      ]
+    },
+    {
+      "name": "get_status",
+      "description": "App state in one call: version, job state and progress, loaded engines and device, the current image, the on-premises model report and MCP counters.",
+      "annotations": {
+        "readOnlyHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "properties": {},
+        "title": "get_statusArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "$defs": {
+          "EngineModel": {
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Name",
+                "type": "string"
+              },
+              "backend": {
+                "default": "",
+                "title": "Backend",
+                "type": "string"
+              },
+              "device": {
+                "default": "",
+                "title": "Device",
+                "type": "string"
+              },
+              "state": {
+                "default": "unloaded",
+                "title": "State",
+                "type": "string"
+              },
+              "loaded": {
+                "default": false,
+                "title": "Loaded",
+                "type": "boolean"
+              },
+              "models": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Models",
+                "type": "array"
+              },
+              "inferences": {
+                "default": 0,
+                "title": "Inferences",
+                "type": "integer"
+              },
+              "warm": {
+                "default": false,
+                "title": "Warm",
+                "type": "boolean"
+              },
+              "detail": {
+                "default": "",
+                "title": "Detail",
+                "type": "string"
+              },
+              "model_list_is_fallback": {
+                "default": false,
+                "title": "Model List Is Fallback",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "title": "EngineModel",
+            "type": "object"
+          },
+          "ImageInfoModel": {
+            "additionalProperties": false,
+            "description": "`image` section of the result document (PLAN 2.1).",
+            "properties": {
+              "source": {
+                "title": "Source",
+                "type": "string"
+              },
+              "file_name": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "File Name"
+              },
+              "width": {
+                "title": "Width",
+                "type": "integer"
+              },
+              "height": {
+                "title": "Height",
+                "type": "integer"
+              },
+              "sha256": {
+                "title": "Sha256",
+                "type": "string"
+              }
+            },
+            "required": [
+              "source",
+              "width",
+              "height",
+              "sha256"
+            ],
+            "title": "ImageInfoModel",
+            "type": "object"
+          },
+          "JobStateModel": {
+            "additionalProperties": false,
+            "properties": {
+              "job_id": {
+                "default": "",
+                "title": "Job Id",
+                "type": "string"
+              },
+              "kind": {
+                "default": "run",
+                "title": "Kind",
+                "type": "string"
+              },
+              "state": {
+                "default": "idle",
+                "title": "State",
+                "type": "string"
+              },
+              "stage": {
+                "default": "idle",
+                "title": "Stage",
+                "type": "string"
+              },
+              "percent": {
+                "default": 0.0,
+                "title": "Percent",
+                "type": "number"
+              },
+              "message": {
+                "default": "",
+                "title": "Message",
+                "type": "string"
+              },
+              "busy": {
+                "default": false,
+                "title": "Busy",
+                "type": "boolean"
+              },
+              "has_result": {
+                "default": false,
+                "title": "Has Result",
+                "type": "boolean"
+              },
+              "block_count": {
+                "default": 0,
+                "title": "Block Count",
+                "type": "integer"
+              },
+              "error": {
+                "anyOf": [
+                  {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Error"
+              }
+            },
+            "title": "JobStateModel",
+            "type": "object"
+          },
+          "McpInfoModel": {
+            "additionalProperties": false,
+            "properties": {
+              "running": {
+                "default": false,
+                "title": "Running",
+                "type": "boolean"
+              },
+              "transport": {
+                "default": "none",
+                "title": "Transport",
+                "type": "string"
+              },
+              "host": {
+                "default": "",
+                "title": "Host",
+                "type": "string"
+              },
+              "port": {
+                "default": 0,
+                "title": "Port",
+                "type": "integer"
+              },
+              "url": {
+                "default": "",
+                "title": "Url",
+                "type": "string"
+              },
+              "auth_required": {
+                "default": false,
+                "title": "Auth Required",
+                "type": "boolean"
+              },
+              "endpoint": {
+                "default": "",
+                "title": "Endpoint",
+                "type": "string"
+              },
+              "started_at": {
+                "default": "",
+                "title": "Started At",
+                "type": "string"
+              },
+              "calls": {
+                "default": 0,
+                "title": "Calls",
+                "type": "integer"
+              },
+              "errors": {
+                "default": 0,
+                "title": "Errors",
+                "type": "integer"
+              },
+              "warnings": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Warnings",
+                "type": "array"
+              }
+            },
+            "title": "McpInfoModel",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "app": {
+            "title": "App",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          },
+          "result_schema_version": {
+            "title": "Result Schema Version",
+            "type": "string"
+          },
+          "config_schema_version": {
+            "title": "Config Schema Version",
+            "type": "string"
+          },
+          "busy": {
+            "title": "Busy",
+            "type": "boolean"
+          },
+          "mock": {
+            "title": "Mock",
+            "type": "boolean"
+          },
+          "offline": {
+            "title": "Offline",
+            "type": "boolean"
+          },
+          "job": {
+            "$ref": "#/$defs/JobStateModel"
+          },
+          "image": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ImageInfoModel"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "engines": {
+            "items": {
+              "$ref": "#/$defs/EngineModel"
+            },
+            "title": "Engines",
+            "type": "array"
+          },
+          "models": {
+            "additionalProperties": true,
+            "title": "Models",
+            "type": "object"
+          },
+          "mcp": {
+            "$ref": "#/$defs/McpInfoModel"
+          },
+          "gui": {
+            "default": false,
+            "title": "Gui",
+            "type": "boolean"
+          },
+          "has_result": {
+            "default": false,
+            "title": "Has Result",
+            "type": "boolean"
+          },
+          "block_count": {
+            "default": 0,
+            "title": "Block Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "app",
+          "version",
+          "result_schema_version",
+          "config_schema_version",
+          "busy",
+          "mock",
+          "offline",
+          "job"
+        ],
+        "title": "GetStatusResult",
+        "type": "object"
+      },
+      "guiEffect": "activity log + status bar",
+      "flash": []
+    },
+    {
+      "name": "highlight_block",
+      "description": "Select a block: the canvas box is marked, its hover panel shows its text, the table row and the JSON pane follow. The panel clears after `duration_ms` (default 1500).",
+      "annotations": {
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "properties": {
+          "id": {
+            "description": "Block id from the result document.",
+            "title": "Id",
+            "type": "integer"
+          },
+          "duration_ms": {
+            "anyOf": [
+              {
+                "maximum": 60000,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "How long the hover panel stays up.",
+            "title": "Duration Ms"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "title": "highlight_blockArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "ok": {
+            "title": "Ok",
+            "type": "boolean"
+          },
+          "block_id": {
+            "title": "Block Id",
+            "type": "integer"
+          },
+          "found": {
+            "title": "Found",
+            "type": "boolean"
+          },
+          "duration_ms": {
+            "title": "Duration Ms",
+            "type": "integer"
+          },
+          "text_preview": {
+            "default": "",
+            "title": "Text Preview",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ok",
+          "block_id",
+          "found",
+          "duration_ms"
+        ],
+        "title": "HighlightResult",
+        "type": "object"
+      },
+      "guiEffect": "box pulses + hover text panel",
+      "flash": [
+        "canvas"
+      ]
+    },
+    {
+      "name": "import_config",
+      "description": "Replace the whole configuration from `json` (a config document) or from `path` — exactly one of the two. Widgets, canvas and pipeline all follow it; `restart_required` lists any MCP transport key the file changed that only takes effect on the next start.",
+      "annotations": {
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "properties": {
+          "json": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Full or partial configuration document.",
+            "title": "Json"
+          },
+          "path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Path to a configuration file.",
+            "title": "Path"
+          }
+        },
+        "title": "import_configArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "config": {
+            "additionalProperties": true,
+            "title": "Config",
+            "type": "object"
+          },
+          "changed": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Changed",
+            "type": "array"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "kept": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Kept",
+            "type": "array"
+          },
+          "restart_required": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Restart Required",
+            "type": "array"
+          }
+        },
+        "required": [
+          "config",
+          "source"
+        ],
+        "title": "ImportConfigResult",
+        "type": "object"
+      },
+      "guiEffect": "all controls update + flash",
+      "flash": [
+        "controls"
+      ]
+    },
+    {
+      "name": "list_models",
+      "description": "The five AnimeText YOLO variants with params/F1/recommended thresholds, plus bundled / loaded / available flags from the on-premises model bundle.",
+      "annotations": {
+        "readOnlyHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "properties": {},
+        "title": "list_modelsArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "$defs": {
+          "ModelEntry": {
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Name",
+                "type": "string"
+              },
+              "known": {
+                "default": true,
+                "title": "Known",
+                "type": "boolean"
+              },
+              "params_m": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Params M"
+              },
+              "flops_g": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Flops G"
+              },
+              "f1": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "F1"
+              },
+              "recommended_score_threshold": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Recommended Score Threshold"
+              },
+              "source": {
+                "default": "hf",
+                "title": "Source",
+                "type": "string"
+              },
+              "bundled": {
+                "default": false,
+                "title": "Bundled",
+                "type": "boolean"
+              },
+              "cached": {
+                "default": false,
+                "title": "Cached",
+                "type": "boolean"
+              },
+              "loaded": {
+                "default": false,
+                "title": "Loaded",
+                "type": "boolean"
+              },
+              "available": {
+                "default": true,
+                "title": "Available",
+                "type": "boolean"
+              },
+              "size_mb": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Size Mb"
+              },
+              "note": {
+                "default": "",
+                "title": "Note",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "title": "ModelEntry",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "detection_repo": {
+            "title": "Detection Repo",
+            "type": "string"
+          },
+          "ocr_repo": {
+            "title": "Ocr Repo",
+            "type": "string"
+          },
+          "ocr_revision": {
+            "title": "Ocr Revision",
+            "type": "string"
+          },
+          "default_model": {
+            "title": "Default Model",
+            "type": "string"
+          },
+          "selected_model": {
+            "title": "Selected Model",
+            "type": "string"
+          },
+          "offline": {
+            "title": "Offline",
+            "type": "boolean"
+          },
+          "models": {
+            "items": {
+              "$ref": "#/$defs/ModelEntry"
+            },
+            "title": "Models",
+            "type": "array"
+          },
+          "loaded_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Loaded Model"
+          },
+          "ocr": {
+            "additionalProperties": true,
+            "title": "Ocr",
+            "type": "object"
+          }
+        },
+        "required": [
+          "detection_repo",
+          "ocr_repo",
+          "ocr_revision",
+          "default_model",
+          "selected_model",
+          "offline",
+          "models"
+        ],
+        "title": "ListModelsResult",
+        "type": "object"
+      },
+      "guiEffect": "activity log; model list",
+      "flash": [
+        "model_combo"
+      ]
+    },
+    {
+      "name": "load_image",
+      "description": "Load a page into the app from `path`, from `base64_png_jpg`, or from the desktop clipboard (`from_clipboard`: GUI only) — exactly one of the three.",
+      "annotations": {
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "properties": {
+          "path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Image file on the app's machine.",
+            "title": "Path"
+          },
+          "base64_png_jpg": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "PNG/JPEG/WebP bytes, base64 (a data: URL is accepted).",
+            "title": "Base64 Png Jpg"
+          },
+          "from_clipboard": {
+            "default": false,
+            "description": "Take the image from the desktop clipboard (needs the GUI).",
+            "title": "From Clipboard",
+            "type": "boolean"
+          },
+          "file_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Name to record for a base64 payload.",
+            "title": "File Name"
+          }
+        },
+        "title": "load_imageArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "$defs": {
+          "ImageInfoModel": {
+            "additionalProperties": false,
+            "description": "`image` section of the result document (PLAN 2.1).",
+            "properties": {
+              "source": {
+                "title": "Source",
+                "type": "string"
+              },
+              "file_name": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "File Name"
+              },
+              "width": {
+                "title": "Width",
+                "type": "integer"
+              },
+              "height": {
+                "title": "Height",
+                "type": "integer"
+              },
+              "sha256": {
+                "title": "Sha256",
+                "type": "string"
+              }
+            },
+            "required": [
+              "source",
+              "width",
+              "height",
+              "sha256"
+            ],
+            "title": "ImageInfoModel",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "image": {
+            "$ref": "#/$defs/ImageInfoModel"
+          },
+          "loaded": {
+            "default": true,
+            "title": "Loaded",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "image"
+        ],
+        "title": "LoadImageResult",
+        "type": "object"
+      },
+      "guiEffect": "input preview shows the image",
+      "flash": [
+        "preview"
+      ]
+    },
+    {
+      "name": "reocr_blocks",
+      "description": "Re-read selected blocks of the current document without detecting again: crop the named boxes, OCR only those, and return a whole new result document (same boxes, ids, colours and reading order; new created_at/timing_ms; `stage: 'reocr'`). The way to act on `flags: [\"possible_truncation\"]` — usually with an `ocr` override raising `max_new_tokens`. Needs a loaded page and a result; BUSY while a job runs.",
+      "annotations": {
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "properties": {
+          "block_ids": {
+            "description": "Block ids to read again, e.g. [7] or [3, 7] — the ids from the result document. Unknown ids are an INVALID_ARGUMENT listing what is available.",
+            "items": {
+              "type": "integer"
+            },
+            "title": "Block Ids",
+            "type": "array"
+          },
+          "ocr": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "OCR section overrides for this read only: max_new_tokens, crop_padding_px, batch_size, device, normalize_nfkc.",
+            "title": "Ocr"
+          },
+          "include_annotated_image": {
+            "default": false,
+            "description": "Also return the annotated PNG as MCP image content.",
+            "title": "Include Annotated Image",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "block_ids"
+        ],
+        "title": "reocr_blocksArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "result": {
+            "additionalProperties": true,
+            "description": "The full result document (result.schema.json).",
+            "title": "Result",
+            "type": "object"
+          },
+          "job_id": {
+            "default": "",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "block_count": {
+            "default": 0,
+            "title": "Block Count",
+            "type": "integer"
+          },
+          "timing_ms": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Timing Ms",
+            "type": "object"
+          },
+          "annotated_image": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Annotated Image"
+          },
+          "progress_events": {
+            "default": 0,
+            "title": "Progress Events",
+            "type": "integer"
+          }
+        },
+        "title": "RunPipelineResult",
+        "type": "object"
+      },
+      "guiEffect": "progress bar; the named blocks change text, the rest of the page is untouched",
+      "flash": [
+        "progress",
+        "canvas",
+        "json"
+      ]
+    },
+    {
+      "name": "reset",
+      "description": "Throw the page away: clears the image, the result, the canvas, the table and the JSON pane. BUSY while a job is running (cancel_job first).",
+      "annotations": {
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "properties": {},
+        "title": "resetArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "ok": {
+            "default": true,
+            "title": "Ok",
+            "type": "boolean"
+          },
+          "cleared": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Cleared",
+            "type": "array"
+          }
+        },
+        "title": "ResetResult",
+        "type": "object"
+      },
+      "guiEffect": "clears image, result and canvas",
+      "flash": [
+        "canvas",
+        "preview",
+        "json"
+      ]
+    },
+    {
+      "name": "run_pipeline",
+      "description": "Full run on the loaded page: detect -> order -> crop -> OCR. Returns the result document (§2.1) and, with include_annotated_image, the overlay PNG as image content. Sends MCP progress notifications while the GUI progress bar moves. Any override is applied to the live config first, so the GUI shows what actually ran.",
+      "annotations": {
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "properties": {
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Detection model name.",
+            "title": "Model"
+          },
+          "iou_threshold": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "NMS IoU threshold.",
+            "title": "Iou Threshold"
+          },
+          "score_threshold": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Detector confidence threshold.",
+            "title": "Score Threshold"
+          },
+          "allow_dynamic": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Dynamic input size.",
+            "title": "Allow Dynamic"
+          },
+          "ocr": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "OCR section overrides: device, max_patches, batch_size, max_new_tokens, crop_padding_px, normalize_nfkc.",
+            "title": "Ocr"
+          },
+          "reading_order": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "score | top_to_bottom | manga_rtl.",
+            "title": "Reading Order"
+          },
+          "include_annotated_image": {
+            "default": false,
+            "description": "Also return the annotated PNG as MCP image content.",
+            "title": "Include Annotated Image",
+            "type": "boolean"
+          }
+        },
+        "title": "run_pipelineArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "result": {
+            "additionalProperties": true,
+            "description": "The full result document (result.schema.json).",
+            "title": "Result",
+            "type": "object"
+          },
+          "job_id": {
+            "default": "",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "block_count": {
+            "default": 0,
+            "title": "Block Count",
+            "type": "integer"
+          },
+          "timing_ms": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Timing Ms",
+            "type": "object"
+          },
+          "annotated_image": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Annotated Image"
+          },
+          "progress_events": {
+            "default": 0,
+            "title": "Progress Events",
+            "type": "integer"
+          }
+        },
+        "title": "RunPipelineResult",
+        "type": "object"
+      },
+      "guiEffect": "progress bar, boxes appear, JSON pane fills",
+      "flash": [
+        "canvas",
+        "json"
+      ]
+    },
+    {
+      "name": "save_result",
+      "description": "Write the latest result document to `path` on the app's machine.",
+      "annotations": {
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "properties": {
+          "path": {
+            "description": "Destination file (parents are created).",
+            "title": "Path",
+            "type": "string"
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "title": "save_resultArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "bytes": {
+            "title": "Bytes",
+            "type": "integer"
+          },
+          "block_count": {
+            "title": "Block Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "path",
+          "bytes",
+          "block_count"
+        ],
+        "title": "SaveResultResult",
+        "type": "object"
+      },
+      "guiEffect": "Save button flash",
+      "flash": [
+        "save_button"
+      ]
+    },
+    {
+      "name": "set_config",
+      "description": "Apply a partial config: {\"detection\": {\"score_threshold\": 0.3}}. Sections and keys you leave out keep their current values; invalid values fail with INVALID_CONFIG and change nothing. Returns the full config, the list of changed key paths, and `restart_required`: changed keys the running process cannot re-apply (the MCP bind address, port, transport and bearer token are read once, at server start). The value is stored either way — the socket you are talking to has not moved.",
+      "annotations": {
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "properties": {
+          "patch": {
+            "additionalProperties": true,
+            "description": "Partial config object (one or more sections).",
+            "title": "Patch",
+            "type": "object"
+          }
+        },
+        "required": [
+          "patch"
+        ],
+        "title": "set_configArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "config": {
+            "additionalProperties": true,
+            "title": "Config",
+            "type": "object"
+          },
+          "changed": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Changed",
+            "type": "array"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          },
+          "restart_required": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Restart Required",
+            "type": "array"
+          }
+        },
+        "required": [
+          "config"
+        ],
+        "title": "SetConfigResult",
+        "type": "object"
+      },
+      "guiEffect": "affected widgets update + flash",
+      "flash": [
+        "controls"
+      ]
+    },
+    {
+      "name": "set_overlay_visible",
+      "description": "Show/hide the box overlay, the labels, or set the fill opacity. Applies to the canvas and to the gui.* config section at once (so it exports and imports).",
+      "annotations": {
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "properties": {
+          "visible": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Draw the boxes at all.",
+            "title": "Visible"
+          },
+          "labels": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Draw the id/text chips.",
+            "title": "Labels"
+          },
+          "fill_opacity": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Box fill opacity.",
+            "title": "Fill Opacity"
+          }
+        },
+        "title": "set_overlay_visibleArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "gui": {
+            "additionalProperties": true,
+            "title": "Gui",
+            "type": "object"
+          },
+          "overlay_visible": {
+            "title": "Overlay Visible",
+            "type": "boolean"
+          },
+          "labels_visible": {
+            "title": "Labels Visible",
+            "type": "boolean"
+          },
+          "fill_opacity": {
+            "title": "Fill Opacity",
+            "type": "number"
+          }
+        },
+        "required": [
+          "gui",
+          "overlay_visible",
+          "labels_visible",
+          "fill_opacity"
+        ],
+        "title": "OverlayResult",
+        "type": "object"
+      },
+      "guiEffect": "canvas toggles live",
+      "flash": [
+        "canvas"
+      ]
+    },
+    {
+      "name": "set_zoom",
+      "description": "Zoom the output canvas: mode \"fit\", or \"percent\" with percent 10..800.",
+      "annotations": {
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "properties": {
+          "mode": {
+            "description": "\"fit\" or \"percent\".",
+            "title": "Mode",
+            "type": "string"
+          },
+          "percent": {
+            "anyOf": [
+              {
+                "maximum": 800,
+                "minimum": 10,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Zoom percent for mode=percent.",
+            "title": "Percent"
+          }
+        },
+        "required": [
+          "mode"
+        ],
+        "title": "set_zoomArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "zoom_mode": {
+            "title": "Zoom Mode",
+            "type": "string"
+          },
+          "zoom_percent": {
+            "title": "Zoom Percent",
+            "type": "integer"
+          },
+          "scale": {
+            "title": "Scale",
+            "type": "number"
+          }
+        },
+        "required": [
+          "zoom_mode",
+          "zoom_percent",
+          "scale"
+        ],
+        "title": "ZoomResult",
+        "type": "object"
+      },
+      "guiEffect": "canvas zooms",
+      "flash": [
+        "canvas"
+      ]
+    },
+    {
+      "name": "unload_engines",
+      "description": "Free the detector and OCR models (waits for the running job). The next run loads them again — useful when the GPU is shared. Note: the model objects are released and that memory becomes reusable, but ONNX Runtime keeps a few hundred MB of process-wide state that is only returned when the process exits.",
+      "annotations": {
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "properties": {},
+        "title": "unload_enginesArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "unloaded": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Unloaded",
+            "type": "array"
+          },
+          "busy": {
+            "default": false,
+            "title": "Busy",
+            "type": "boolean"
+          }
+        },
+        "title": "UnloadResult",
+        "type": "object"
+      },
+      "guiEffect": "activity log; engines freed",
+      "flash": [
+        "badges"
+      ]
+    },
+    {
+      "name": "warm_engines",
+      "description": "Start the engine warm-up job — `--preload`'s remote twin, and the counterpart of `unload_engines`. Loads the weights AND runs one throwaway inference per engine, so the first real page is not slower than every page after it. Returns immediately with the job id (BUSY if a job is already running); poll `get_status`, where `job.kind == 'warmup'` and `engines[].warm` is the proof. `probe: false` loads without the inference: from a cold engine that leaves `loaded: true, warm: false`.",
+      "annotations": {
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "properties": {
+          "probe": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Run the throwaway first inference (default true). False = load the weights only.",
+            "title": "Probe"
+          }
+        },
+        "title": "warm_enginesArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": false,
+        "description": "The warm-up is a job, so this answers with a job handle, not with a wait (P8.3).",
+        "properties": {
+          "job_id": {
+            "default": "",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "kind": {
+            "default": "warmup",
+            "title": "Kind",
+            "type": "string"
+          },
+          "state": {
+            "default": "running",
+            "title": "State",
+            "type": "string"
+          },
+          "busy": {
+            "default": true,
+            "title": "Busy",
+            "type": "boolean"
+          },
+          "probe": {
+            "default": true,
+            "title": "Probe",
+            "type": "boolean"
+          },
+          "note": {
+            "default": "poll get_status (job.kind == 'warmup'); get_status.engines[].warm is the proof",
+            "title": "Note",
+            "type": "string"
+          }
+        },
+        "title": "WarmEnginesResult",
+        "type": "object"
+      },
+      "guiEffect": "progress bar runs the `warmup` job; engines badge refreshes when it finishes",
+      "flash": [
+        "badges"
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "uri": "config://current",
+      "name": "current-config",
+      "title": "Live configuration",
+      "description": "The whole configuration document the app is running with (config.schema.json).",
+      "mimeType": "application/json"
+    },
+    {
+      "uri": "result://latest",
+      "name": "latest-result",
+      "title": "Latest result document",
+      "description": "The result JSON of the most recent successful run (§2.1). NO_IMAGE when there is none.",
+      "mimeType": "application/json"
+    },
+    {
+      "uri": "image://current",
+      "name": "current-image",
+      "title": "Current page (PNG)",
+      "description": "The loaded page as PNG, untouched by the overlay.",
+      "mimeType": "image/png"
+    },
+    {
+      "uri": "image://annotated",
+      "name": "annotated-image",
+      "title": "Annotated page (PNG)",
+      "description": "The page with the current boxes drawn on it, at full resolution.",
+      "mimeType": "image/png"
+    },
+    {
+      "uri": "models://list",
+      "name": "model-list",
+      "title": "Model catalogue",
+      "description": "The five YOLO variants with bundled/loaded/available flags.",
+      "mimeType": "application/json"
+    },
+    {
+      "uri": "log://mcp",
+      "name": "mcp-log",
+      "title": "MCP activity log",
+      "description": "Recent tool calls: time, tool, arguments (redacted), outcome, duration.",
+      "mimeType": "application/json"
+    }
+  ]
+}

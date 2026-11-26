@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "detection": {
+    "model": "yolo12x_animetext",
+    "iou_threshold": 0.35,
+    "score_threshold": 0.425,
+    "allow_dynamic": false
+  },
+  "ocr": {
+    "device": "cuda:0",
+    "max_patches": "auto",
+    "batch_size": 16,
+    "max_new_tokens": 128,
+    "crop_padding_px": 2,
+    "normalize_nfkc": false
+  },
+  "pipeline": {
+    "reading_order": "manga_rtl",
+    "min_box_area_px": 16
+  },
+  "gui": {
+    "overlay_visible": true,
+    "fill_opacity": 0.18,
+    "labels_visible": true,
+    "hover_opacity": 0.5,
+    "zoom_mode": "fit",
+    "zoom_percent": 100
+  },
+  "mcp": {
+    "enabled": true,
+    "transport": "streamable-http",
+    "host": "0.0.0.0",
+    "port": 9000,
+    "auth_token": "change-me"
+  },
+  "paths": {
+    "hf_cache_dir": null,
+    "last_image_dir": null,
+    "export_dir": null
+  },
+  "hf": {
+    "token_env": "HF_TOKEN"
+  }
+}

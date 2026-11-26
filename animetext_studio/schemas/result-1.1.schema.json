@@ -1,0 +1,287 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "animetext-studio/result-1.1",
+ "title": "AnimeText OCR Studio pipeline result",
+ "description": "FROZEN shape of result documents written by schema 1.1 (P8: added `stage`). Kept so an old document can still be validated exactly as written; new documents are `result.schema.json` (1.2).",
+ "type": "object",
+ "additionalProperties": false,
+ "required": [
+  "schema_version",
+  "created_at",
+  "stage",
+  "image",
+  "detection",
+  "ocr",
+  "timing_ms",
+  "blocks",
+  "block_count"
+ ],
+ "properties": {
+  "schema_version": {
+   "const": "1.1"
+  },
+  "created_at": {
+   "type": "string",
+   "description": "ISO-8601 local-timezone timestamp."
+  },
+  "stage": {
+   "enum": [
+    "detect",
+    "full"
+   ],
+   "description": "What this run did. 'full' = detection + OCR; 'detect' = stage 1 only (the MCP detect tool or ocr_enabled=False), so every blocks[].text is null by design and carries error.code 'SKIPPED'."
+  },
+  "image": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "source",
+    "file_name",
+    "width",
+    "height",
+    "sha256"
+   ],
+   "properties": {
+    "source": {
+     "enum": [
+      "file",
+      "clipboard",
+      "mcp-base64",
+      "mcp-path"
+     ]
+    },
+    "file_name": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "width": {
+     "type": "integer",
+     "minimum": 1
+    },
+    "height": {
+     "type": "integer",
+     "minimum": 1
+    },
+    "sha256": {
+     "type": "string",
+     "pattern": "^[0-9a-f]{64}$"
+    }
+   }
+  },
+  "detection": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "repo",
+    "model",
+    "iou_threshold",
+    "score_threshold",
+    "allow_dynamic",
+    "backend"
+   ],
+   "properties": {
+    "repo": {
+     "type": "string"
+    },
+    "model": {
+     "type": "string"
+    },
+    "iou_threshold": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 1
+    },
+    "score_threshold": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 1
+    },
+    "allow_dynamic": {
+     "type": "boolean"
+    },
+    "backend": {
+     "type": "string"
+    }
+   }
+  },
+  "ocr": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "repo",
+    "device",
+    "max_patches",
+    "batch_size",
+    "max_new_tokens",
+    "crop_padding_px",
+    "normalize_nfkc"
+   ],
+   "properties": {
+    "repo": {
+     "type": "string"
+    },
+    "device": {
+     "type": "string",
+     "description": "Resolved device, e.g. cuda:0 or cpu."
+    },
+    "max_patches": {
+     "oneOf": [
+      {
+       "const": "auto"
+      },
+      {
+       "type": "integer",
+       "enum": [
+        128,
+        192,
+        256,
+        384
+       ]
+      }
+     ]
+    },
+    "batch_size": {
+     "type": "integer",
+     "minimum": 1
+    },
+    "max_new_tokens": {
+     "type": "integer",
+     "minimum": 1
+    },
+    "crop_padding_px": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "normalize_nfkc": {
+     "type": "boolean"
+    }
+   }
+  },
+  "timing_ms": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "detect",
+    "ocr",
+    "total"
+   ],
+   "properties": {
+    "detect": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "ocr": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "total": {
+     "type": "integer",
+     "minimum": 0
+    }
+   }
+  },
+  "blocks": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "id",
+     "bbox",
+     "label",
+     "score",
+     "text",
+     "reading_order",
+     "color",
+     "error"
+    ],
+    "properties": {
+     "id": {
+      "type": "integer",
+      "minimum": 0
+     },
+     "bbox": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+       "x0",
+       "y0",
+       "x1",
+       "y1"
+      ],
+      "properties": {
+       "x0": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "y0": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "x1": {
+        "type": "integer",
+        "minimum": 0
+       },
+       "y1": {
+        "type": "integer",
+        "minimum": 0
+       }
+      }
+     },
+     "label": {
+      "type": "string"
+     },
+     "score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+     },
+     "text": {
+      "type": [
+       "string",
+       "null"
+      ],
+      "description": "OCR text; null when no text was read for this block. Why is in `error`: a stage-1 document marks every block SKIPPED, a too-small box says SKIPPED_TOO_SMALL, a failed recognition carries the engine error code. text \"\" means OCR ran on this crop and read nothing."
+     },
+     "reading_order": {
+      "type": "integer",
+      "minimum": 0
+     },
+     "color": {
+      "type": "string",
+      "pattern": "^#[0-9A-Fa-f]{6}$"
+     },
+     "error": {
+      "oneOf": [
+       {
+        "type": "null"
+       },
+       {
+        "type": "object",
+        "required": [
+         "code",
+         "message"
+        ],
+        "properties": {
+         "code": {
+          "type": "string"
+         },
+         "message": {
+          "type": "string"
+         },
+         "details": {}
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  "block_count": {
+   "type": "integer",
+   "minimum": 0
+  }
+ }
+}

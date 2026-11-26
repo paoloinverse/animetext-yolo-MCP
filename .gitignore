@@ -1,0 +1,70 @@
+# --- Python -------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.eggs/
+
+# --- virtualenvs / local install prefixes --------------------------------
+.venv/
+venv/
+.unsloth-packages/
+
+# --- caches, scratch, environment noise ----------------------------------
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+.probe/
+unsloth-tmp/
+out/
+*.log
+
+# --- runtime state written by the app ------------------------------------
+*.settings.json
+config.local.json
+
+# --- secrets: NEVER committed (the app never writes a token to a tracked file either) ---
+HF_token.txt
+GH_token.txt
+.hf_token
+*token*.txt
+!.gitignore
+
+# --- the model bundle: OUT of the repository (decision D95, amends D26) ----
+# D26 made the bundle part of the deliverable, which is right for a folder copy and wrong
+# for a published repository: the AnimeText detection weights are the author's to distribute
+# (GPL-3.0, and redistributing them against the author's intentions is not this project's
+# call), the Hayai snapshot is 604 MB on its own, and four files under models/ pass GitHub's
+# 100 MB hard limit outright — the push would be rejected, not merely large.
+#
+# So: nothing under animetext_studio/models/ is published, and a clone rebuilds it with
+#     python scripts/fetch_models.py            (or --ocr / --variants NAME)
+# which re-writes MANIFEST.json and .origin.json with this machine's paths and hashes.
+# The folder stays a first-class part of a *copy* of the project — only the *repository*
+# excludes it, which is what D26 was really about. Pinned by tests/test_p8_packaging.py.
+animetext_studio/models/
+
+# --- the user's own scans: OUT -------------------------------------------
+# README §Licensing and NOTICE both say nothing in this repository licenses these pages to
+# anyone, so they never enter it. `examples/sample_page.png`, drawn by
+# scripts/make_sample_image.py, is the page the tests and the demos may use; the real-page
+# tests in tests/test_p8_e2e_models.py skip, not fail, when the folder is empty.
+sample_scans/
+
+# --- local-only working notes --------------------------------------------
+# The handover note: account ids, credential handling, the rotate-the-token reminder. All
+# of it is about this machine and this conversation, not about the software.
+github_inputs.md
+
+# --- scratch, tooling droppings, this machine's tool caches ---------------
+# None of these belong to the project: they are the environment it happened to be built in.
+.npm/
+.mcp-inspector/
+.unsloth/
+uploads/
+research/
+tmp_*.txt
+tmpb_*/
+p8t.txt
