@@ -11,6 +11,11 @@
 > differs from the proposal (9.4's `--warm-devices` action instead of a `devices=` option, D85;
 > the doctor's exit code predicting the run's, D89) the decision table in `P9.md` says so.
 
+> **A second round was added on 2026-11-26**, after the repository existed and the README had to
+> say something about Python 3.14: *"Second round — Python 3.14, and how much of it is
+> `dghs-imgutils`"*, below item 5. It is the same kind of document — measured facts and costed
+> options, no commitment — and it ends with what I would do first.
+
 Written 2026-11-25, **after** P1–P8 closed (T19). Nothing here is scheduled, committed, or a
 defect: the plan is complete and `docs/QA.md` traces every requirement to evidence (115 rows,
 1092 offline tests + 40 `-m models`). These are the five ideas that came up while closing it and
@@ -197,6 +202,76 @@ instead of a diagnosis.
 install (`IMGUTILS_NO_AUTO_INSTALL=1`, or just raise with the pip command), (ii) the
 `ast.Constant` migration. Neither is our code to fix; both are worth filing, with the file:line
 above, while we still remember where they are.
+
+---
+
+## Second round (2026-11-26): Python 3.14, and how much of it is `dghs-imgutils`
+
+Raised while cleaning the README, which still says "Python 3.10 – 3.13". The question: **is
+there really no alternative to the `ast.Str` deprecation, or have we accepted somebody else's
+freeze?** Answer: there are alternatives, and one of them is about eight lines. Everything
+below was measured today, not reasoned about.
+
+### What is actually in the way (measured)
+
+| Fact | Evidence |
+|---|---|
+| `dghs-imgutils` 0.19.0 requires `numpy<2` and declares **no** `requires-python` | PyPI metadata for 0.19.0: `requires_dist: ["numpy<2", "opencv-contrib-python", …]`, `requires_python: null` |
+| numpy 1.x has **no wheels past cp312** | PyPI: `numpy-1.26.4` ships cp312 at best. On 3.13 pip must build numpy 1 from source; on 3.14 there is no numpy 1 to build — 3.14 support begins with numpy 2 |
+| **We already run imgutils on numpy 2** | this machine: Python 3.13.15, `numpy 2.5.5`, `imgutils 0.19.0` — installed with `--no-deps`, which is the recipe the README's own Troubleshooting table gives. The `numpy<2` pin is already fiction in the only installation that has ever worked here |
+| The 3.14 breakage is **two lines in one file** | `imgutils/generic/yolo.py:468` and `:474`, `isinstance(key, (ast.Str, ast.Num))`, reached from `yolo.py:612` and `yoloseg.py:341`. A grep of the installed package finds `ast.Str`/`ast.Num` **nowhere else** |
+| Upstream has the fix, unmerged | PR #178 (2026-06-07) rewrites those two lines to `ast.Constant` *and* relaxes `numpy<2` → `numpy<3`. Repository's last push: 2025-10-11 |
+| Our dependency on imgutils is **five symbols** | `YOLOModel` (imported two ways), `_safe_eval_names_str`, `_model_load_lock`, `open_onnx_model` — all in `engines/detection.py` |
+
+So the floor is not "3.14 is hard". It is: **one upstream file, two lines, and a version pin
+that upstream itself has already relaxed and nobody has released.**
+
+### The four ways out
+
+**A. Wait for a release containing #178.** Costs nothing, controls nothing. The repository has
+not been pushed to in over a year; the PR has sat unmerged for five months. Reasonable to hope
+for, not to plan on.
+
+**B. Ship the compatibility shim ourselves — recommended first move.** After importing
+`imgutils.generic.yolo`, replace its `_safe_eval_names_str` with our own `ast.Constant`
+implementation, applied when the helper would touch `ast.Str` (or unconditionally — the
+replacement is behaviour-identical on 3.8+, and it is the same change upstream made). Roughly
+eight lines in `engines/detection.py`, where a `ast.literal_eval` fallback for this very helper
+already lives (it never fires on 3.14: the *import* succeeds and the failure happens later,
+inside upstream's own model load). Combined with the `--no-deps` + numpy 2 install we already
+document, detection runs on 3.14 the same day this lands.
+
+*Costs:* we patch a private upstream function, so it must be pinned by a test that goes red if
+the helper moves — `TestTheUpstreamDrafts` already reads the installed source for exactly this
+purpose and can carry the second half. And it is a workaround with an expiry date: when a
+release contains #178, the pin test tells us to delete it.
+
+*The tempting wrong version:* setting `ast.Str = ast.Constant` before importing imgutils.
+That mutates the standard library for every other importer in the process, and `isinstance(x,
+ast.Constant)` accepts `None`/`True` literals that the old pair rejected. Patch the function,
+not the `ast` module.
+
+**C. Stop depending on imgutils for detection — the strategic option.** We already own the
+path that matters: the bundle carries `model.onnx`, `threshold.json`, `labels.json` and
+`model_type.json`; provider selection is ours (via `ONNX_MODE`); the bundled-model subclass is
+ours. What imgutils still provides is the pre/post-processing — letterbox, output decode, NMS,
+coordinate mapping — a few hundred lines. What that removes in one move: the 3.14 floor, the
+import-time `pip install` (UPSTREAM Issue 1), the `numpy<2` pin, and the `hfutils` chain behind
+it. What it costs: we own letterbox and NMS correctness permanently, and the golden documents
+get re-baselined — though "same boxes as before" is checkable rather than hoped for, because
+the golden JSON and the 12-box expectations are already byte-exact tests.
+
+**D. Pin a fork carrying #178.** Works today, and adds a third-party provenance question to a
+project whose one careful claim is provenance. Only take it if B is judged too clever and C is
+refused.
+
+### What I would do
+
+**B now** (about half a day with tests, reversible, and it makes the README say 3.10–3.14
+truthfully), **C as the P10 candidate** if 3.14 and 3.15 support is not to remain somebody
+else's decision forever — it also settles Issue 1, which B leaves open. **A in parallel**,
+because it costs nothing and would delete B's workaround. Until one of these lands, the
+README's 3.10–3.13 floor is honest and should stay exactly as blunt as it is now.
 
 ---
 

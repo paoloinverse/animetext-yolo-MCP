@@ -1614,3 +1614,68 @@ subject *is* a URL. Suite: **1259**.
 **Next up:** the two upstream issues (D92 — Issue 2 as a release request against #178, and
 only a *classic* token can file into someone else's repository); `scripts/bench_models.py`
 (ADDENDUM item E), still waiting on its corpus, its two revisions and its verdict metric.
+
+---
+
+## Turn 22 — 2026-11-26 — the README read as a manual, and Python 3.14 measured rather than assumed
+
+**The README was addressed to the wrong reader.** The user's words: *"none of my users are
+interested in what decision D95 is."* Right — and the project's own rule about the trail (D79:
+a citation nobody resolves is a citation that rots) cuts the other way for a manual: an id that
+points at an internal log is noise to the person trying to install the app. Thirteen decision
+ids were in the README; **twelve are gone**, and the one that stays is in the row that describes
+the build log, where the id is the subject rather than the residue. The reasoning is not lost —
+it is in `P9.md` and `tracking.md`, which is where a reader who wants it will look.
+
+**The clone command was broken, and nobody had run it.** `git clone <this repo> && cd
+animetext-studio`: a placeholder nobody filled in, and a folder name the clone never produces —
+the repository is `animetext-yolo-MCP`, the package is `animetext_studio`, so the `cd` would
+have failed on the first command anyone types into a terminal. Both fixed, and the reason this
+survived eight turns of README review is the reason it needs a test: the README is documentation,
+so no test ever executed it.
+
+**`test_the_readme_reads_as_a_manual_not_a_worksheet`.** Decision ids outside the build-log row,
+`<this repo>`-class placeholders and `TODO`/`FIXME` are all failures, and the clone line must
+carry a real URL and the folder the clone actually makes. Angle-bracket *syntax* is allowed —
+`<package>`, `<variant>`, `<token>` are how a command is written down — the rule is about
+residue, not typography. Suite: **1260**.
+
+**Python 3.14, examined instead of accepted.** The README's 3.10–3.13 floor had become a fact
+people repeat; the user asked whether there is truly no alternative. Measured today, in
+`enhancements_proposition.md` → *Second round*:
+
+* `dghs-imgutils` 0.19.0 pins `numpy<2` and declares no `requires-python` at all; **numpy 1.x
+  ships no wheels past cp312**, so the pin is the harder blocker, not the `ast` one.
+* **We already run imgutils on numpy 2.5.5** — installed `--no-deps`, which is the recipe this
+  project's own Troubleshooting table gives. The pin has been fiction in the only installation
+  that has ever worked here.
+* The 3.14 breakage is **two lines in one file** (`imgutils/generic/yolo.py:468,474`); a grep of
+  the installed package finds `ast.Str`/`ast.Num` nowhere else. Upstream's unmerged PR #178 fixes
+  both lines *and* relaxes the numpy pin.
+* Our whole dependency on imgutils is **five symbols**, and the one that fails is
+  `_safe_eval_names_str` — where `engines/detection.py` already keeps an `ast.literal_eval`
+  fallback that can never fire on 3.14, because the import succeeds and the failure happens
+  later, inside upstream's own model load.
+
+Four options are written up with costs: wait for a release (no cost, no control); **ship our own
+eight-line shim** (a day, unblocks 3.14 against the `--no-deps` install we already document,
+reversible, pinned by the test that already reads the installed source); **stop depending on
+imgutils for detection** (we own the ONNX path already; it would settle 3.14 *and* the
+import-time `pip install`, at the price of owning letterbox/NMS and re-baselining the goldens);
+or pin a fork (rejected on provenance grounds — this project's one careful claim is provenance).
+One trap recorded so nobody re-invents it: setting `ast.Str = ast.Constant` on import mutates the
+standard library for every other importer and quietly accepts `None`/`True` literals the old pair
+rejected. Patch the function, not `ast`.
+
+**A classic token arrived.** It authenticates as `paoloinverse` (verified with one read-only
+`GET /user`) and it is the shape that *can* write to `deepghs/imgutils`. It was used for that one
+call and nothing else, and nothing was filed: an issue under someone else's name, in someone
+else's repository, is theirs to press — especially Issue 2, whose right form depends on the #178
+answer the user has not given yet. Stored in `GH_token.txt` (mode 600, gitignored), rotation
+recommended.
+
+**Measured, this run.** 1260 passed / 41 deselected offline · both generators `--check` clean ·
+`docs/QA.md` regenerated against the 1260 floor.
+
+**Next up:** the three answers `scripts/bench_models.py` needs (corpus, revisions, metric); the
+two upstream issues (D92); and, if the 3.14 examination is taken up, the shim as a P10 subpart.

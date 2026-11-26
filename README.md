@@ -4,10 +4,10 @@ Detect the text blocks in an anime/manga page and read them — **in one app, wi
 a PySide6 window a human can watch, a headless CLI that prints one JSON document, and an MCP
 server an agent can drive. Every door moves the *same* state; nothing forks.
 
-**Repository:** <https://github.com/paoloinverse/animetext-yolo-MCP> — code, tests, docs and
-the build trail. A clone carries **no model weights and no scans** (decision D95): run
-`python scripts/fetch_models.py` to build the bundle, then `animetext-studio --doctor` to ask
-whether the machine can run it.
+**Repository:** <https://github.com/paoloinverse/animetext-yolo-MCP>
+
+A clone carries **no model weights and no scans** — `python scripts/fetch_models.py` builds
+the bundle, and `animetext-studio --doctor` then says whether this machine can run it.
 
 ```text
 page.png ──► AnimeText YOLO (deepghs/AnimeText_yolo)  ──► boxes ──► Hayai Supernova crop OCR
@@ -43,11 +43,12 @@ Two properties hold everywhere:
 
 ## Install
 
-**Python 3.10 – 3.13.** (3.14 works for the app but not for `dghs-imgutils`, which still uses
-the `ast.Str`/`ast.Num` aliases removed in 3.14 — see [Troubleshooting](#troubleshooting).)
+**Python 3.10 – 3.13.** Detection does not load on 3.14 yet — the reason and the workaround are
+under [Troubleshooting](#troubleshooting).
 
 ```bash
-git clone <this repo> && cd animetext-studio
+git clone https://github.com/paoloinverse/animetext-yolo-MCP.git
+cd animetext-yolo-MCP
 pip install -e ".[gui,detect,ocr,mcp]"        # or ".[all]"
 ```
 
@@ -102,15 +103,13 @@ a bare `--venv`.
 
 ## Models & offline bundle
 
-The weights are **part of the deliverable** (decision D26): a copy of this folder — or a built
-wheel — is a complete offline installation. No download at first run, no cache warm-up, no
-token for the OCR model.
+A copy of this folder — or a wheel built from a folder that has the weights — is a **complete
+offline installation**: no download at first run, no cache warm-up, no token for the OCR model.
 
-**A clone is not a copy** (decision D95, amending D26). The AnimeText weights are their
-author's to distribute, the Hayai snapshot is 604 MB on its own, and four files under
-`models/` pass GitHub's 100 MB hard limit — so the *repository* publishes no `models/` at
-all, and no `sample_scans/` either. One command builds the bundle described below, and it is
-the same command that repairs a damaged one:
+**A clone is not such a copy.** The detection weights belong to their author, the OCR snapshot
+is 604 MB on its own, and four of these files pass GitHub's 100 MB per-file limit — so the
+repository publishes no `models/` at all, and no `sample_scans/` either. One command builds
+the bundle described below, and it is the same command that repairs a damaged one:
 
 ```bash
 python scripts/fetch_models.py --all --ocr    # a HF token is needed for the gated detection repo
@@ -597,7 +596,7 @@ upstream behaviour, drafted as issues in [`docs/UPSTREAM.md`](docs/UPSTREAM.md).
 ## Development
 
 ```bash
-QT_QPA_PLATFORM=offscreen python -m pytest          # 1259 passed, 41 deselected, ~39 s
+QT_QPA_PLATFORM=offscreen python -m pytest          # 1260 passed, 41 deselected, ~41 s
 QT_QPA_PLATFORM=offscreen python -m pytest -m models  # real weights, offline, ~40 s
 python scripts/gen_error_matrix.py --check          # docs/ERROR-MATRIX.md matches the tests
 python scripts/gen_qa_report.py --check             # docs/QA.md matches the requirement table
@@ -619,18 +618,18 @@ command stops existing.
 | `animetext_studio/gui/` | window, controls, canvas, JSON pane, MCP activity dock |
 | `animetext_studio/mcp/` | service (the door), tools, resources, bridge, server/gateway |
 | `animetext_studio/schemas/` | `result.schema.json`, `config.schema.json`, `mcp-tools.json` |
-| `animetext_studio/models/` | the offline bundle + `MANIFEST.json` — **built by `scripts/fetch_models.py`, never published** (D95) |
-| `sample_scans/` | the user's own pages, if they choose to keep them here; never published (D95) |
+| `animetext_studio/models/` | the offline bundle + `MANIFEST.json` — **built by `scripts/fetch_models.py`, never published** |
+| `sample_scans/` | the user's own pages, if they choose to keep them here; never published |
 | `docs/` | [MCP.md](docs/MCP.md) · [ERROR-MATRIX.md](docs/ERROR-MATRIX.md) · [QA.md](docs/QA.md) · [UPSTREAM.md](docs/UPSTREAM.md) |
 | `scripts/` | `fetch_models.py` · `check_hf_access.py` · `setup_dev.sh` · `gen_error_matrix.py` · `gen_qa_report.py` · `make_sample_image.py` · `mcp_curl_demo.sh` |
 | `examples/` | `sample_page.png`, config examples, a recorded MCP session |
 | `PLAN.md`, `tracking.md`, `P9.md` | the build log: the plan, then decisions D1–D95 and one entry per turn |
 
-**Deliberately not done** (each one is a decision, not an oversight): no de-duplication of
-nested boxes (flag, don't drop — D58); no language policy or "expected language" filtering
-(the caller knows what a manga should contain, this app does not — D60); no sub-crop splitting
-of dense slabs (same reason); no concurrent jobs (single-flight makes every caller
-deterministic — D32).
+**Deliberately not done**, each one a decision rather than an oversight: no de-duplication of
+nested boxes (they are flagged, not dropped); no language policy or "expected language"
+filtering (the caller knows what a manga should contain, this app does not); no sub-crop
+splitting of dense slabs (same reason); no concurrent jobs (one job at a time is what makes
+every caller deterministic). The argument behind each is in the build log.
 
 ---
 
@@ -643,7 +642,7 @@ use, modify and redistribute the code; contributions arrive under the same terms
 (§5); there is a patent grant (§3); the project's names and marks are not part of it (§6).
 
 The **model weights are a separate matter** — they arrive in the tree when the bundle is built,
-and nobody here can relicense them. The repository itself publishes none of them (D95):
+and nobody here can relicense them. The repository itself publishes none of them:
 
 | Component | What it is | Licence | Its text ships at |
 |---|---|---|---|
@@ -670,11 +669,11 @@ In practice:
   `--model-status` and the fallback model list are built for exactly that, so it is a
   packaging decision and not a fork. And whatever you do, **do not re-publish the AnimeText
   weights**: they are GPL-3.0, and their author's choice about distributing them is not yours
-  to make on their behalf (D95).
+  to make on their behalf.
 * **`sample_scans/`** are the user's own pages. Nothing in this repository licenses them to
   anyone, the app never renders them into documentation or test output, and the repository
-  does not carry them (D95) — the tests that want a page use `examples/sample_page.png`,
-  which `scripts/make_sample_image.py` draws.
+  does not carry them — the tests that want a page use `examples/sample_page.png`, which
+  `scripts/make_sample_image.py` draws.
 
 This section is a summary, not legal advice: read [`LICENSE`](LICENSE) and the two upstream
 model cards before you redistribute a bundle.

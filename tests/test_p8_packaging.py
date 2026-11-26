@@ -574,9 +574,27 @@ class TestWhatTheRepositoryPublishes:
     def test_a_clone_is_told_how_to_get_the_weights(self) -> None:
         """The rule is only half of it: a clone has to be able to find the other half."""
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
-        assert "A clone is not a copy" in readme, "the README never says a clone has no bundle"
-        assert "D95" in readme and "D26" in readme, "the amendment must name what it amends"
+        assert "A clone is not such a copy" in readme, \
+            "the README never says a clone arrives without the bundle"
         assert "scripts/fetch_models.py" in readme
         assert (ROOT / "scripts" / "fetch_models.py").is_file()
+
+    def test_the_readme_reads_as_a_manual_not_a_worksheet(self) -> None:
+        """Decision ids, `<this repo>` and `TODO` are working notes. They belong in the build
+        log; someone reading the manual should not have to learn what `D95` means in order to
+        install the app. The one row where an id is the *subject* — the row that points at the
+        log itself — is allowed to carry one.
+        """
+        lines = (ROOT / "README.md").read_text(encoding="utf-8").splitlines()
+        ids = [f"{n}: {line.strip()[:72]}" for n, line in enumerate(lines, 1)
+               if re.search(r"\bD\d{2}\b", line) and "build log" not in line]
+        assert ids == [], f"decision ids left in the manual: {ids}"
+        residue = [f"{n}: {line.strip()[:72]}" for n, line in enumerate(lines, 1)
+                   if re.search(r"<(this repo|repo url|your )|\bTODO\b|\bFIXME\b", line, re.I)]
+        assert residue == [], f"placeholders left in the manual: {residue}"
+        assert "git clone https://" in "\n".join(lines), \
+            "the clone command still points at nothing — a reader cannot copy-paste an install"
+        assert "cd animetext-yolo-MCP" in "\n".join(lines), (
+            "the cd must name the folder the clone actually makes, not the package's name")
 
 
