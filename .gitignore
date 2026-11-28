@@ -53,6 +53,14 @@ animetext_studio/models/
 # tests in tests/test_p8_e2e_models.py skip, not fail, when the folder is empty.
 sample_scans/
 
+# --- what the benchmark harness writes: OUT, for the same reason ------------
+# `bench/profile.json` is a description of someone's pages and `bench/reports/*.json` quotes
+# the text it read off them: scan content wearing a JSON extension. `bench/snapshots/` holds
+# candidate OCR revisions, which is the model bundle argument again. None of it is generated
+# by the app, none of it belongs to the project, and `--no-text` does not change the verdict:
+# a hash of a line of someone's scan is still about their scan.
+bench/
+
 # --- local-only working notes --------------------------------------------
 # The handover note: account ids, credential handling, the rotate-the-token reminder. All
 # of it is about this machine and this conversation, not about the software.
