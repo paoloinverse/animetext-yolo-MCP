@@ -1679,3 +1679,44 @@ recommended.
 
 **Next up:** the three answers `scripts/bench_models.py` needs (corpus, revisions, metric); the
 two upstream issues (D92); and, if the 3.14 examination is taken up, the shim as a P10 subpart.
+
+---
+
+## 2026-11-27 — P9.6: the bench harness, and the first thing it measured was us
+
+The three answers came back, so item E of the ADDENDUM got built: `scripts/bench_models.py`
+(`profile` / `panel` / `run`), documented in **docs/BENCH.md**, tested offline by
+`tests/test_p9_bench.py` (64 tests, no torch, no weights, no network). Decisions D96–D99 are in
+`P9.md`; the open list in `docs/QA.md` lost "the bench is not built" and gained a defect.
+
+**The corpus.** 239 pages, profiled once at the pinned revision: 4 789 blocks, 42 867 characters,
+0 failures, 6 m 48 s wall at `--jobs 4`. Nothing in it fails outright — no empty block, no OCR
+error at `b00317ed` — so difficulty had to be built from *shape* (tiny boxes, crowding, nesting,
+weak detector scores, long lines) rather than from failures. Panel selection is a seeded
+round-robin over those tiers with layout diversity inside each tier, so `--seed 1` and `--seed 7`
+give different pages of the same *range*, and a month-old profile still yields a fresh sample
+because the strata are recomputed from stored features at read time.
+
+**What the self-test found.** Comparing the pinned snapshot with itself — which can only produce
+`SAME` — produced changed blocks. The harness was not wrong, the path was: the pinned side came
+from the profile (a `Pipeline.run()` crop) and the candidate from `Pipeline.reocr_blocks`, which
+re-applies `crop_padding_px` to a bbox `run()` already padded. Every re-read since P9.3 has been
+fed a crop `2 × padding` larger than the one the text came from, and its docstring says the
+opposite. Both sides now go through `run()`; the app itself is left alone for now because the
+operator is mid-review, and the defect is written into `docs/QA.md` with its measurement, its
+proof (shrinking each box by the padding reproduces the original text exactly, on every block)
+and its one-line fix, waiting for a go.
+
+**Two numbers worth remembering.** On this machine the pipeline is reproducible — 0 of 113 blocks
+moved across two identical passes — and its *timings* are not: ±15% between passes of the same
+weights on the same pages. `--noise-floor` exists so those two facts travel together in every
+report.
+
+**Environment, recorded because it cost two dead runs to learn.** This sandbox caps a single
+process at 600 s of CPU and a single file at 100 MB. The first kills a worker pool mid-profile
+(hence `--resume`, and workers recycled every 10 pages); the second means no candidate revision
+whose weights differ from the bundle can be staged here at all — which is what the hash-verified
+hard-link reuse (D98) is for, and why `run --against latest` was still exercisable end to end.
+
+**Next up:** the `reocr_blocks` padding fix, on a word from the operator; the two upstream issues
+(D92), still drafted and unfilable from here; and the Python 3.14 examination, still on hold.

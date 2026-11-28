@@ -571,10 +571,16 @@ FOLLOW_UPS: tuple[tuple[str, str], ...] = (
      "2026-11-26 also found that Issue 2 is already fixed upstream in "
      "unmerged PR #178, so the artefact there is a release request, not a bug report. "
      "`TestTheUpstreamDrafts` goes red if the quoted source moves underneath them"),
-    ("`scripts/bench_models.py` — the benchmark harness ADDENDUM item E asked for",
-     "`--warm-devices` is the measurement primitive it needed (D84); the harness is the part "
-     "that runs a corpus through variants and devices and keeps the numbers. Nothing in the "
-     "plan requires it, so it stays a proposal, not a row"),
+    ("`Pipeline.reocr_blocks` reads a slightly different crop than the run it is re-reading "
+     "(found by the bench self-test, 2026-11-27)",
+     "`run()` stores the padding-adjusted bbox and then reocr pads it a second time, so the "
+     "crop fed to the model is `2 * crop_padding_px` larger than the one the text came from — "
+     "measured at 4 px on the default padding, and enough to change the text of 3 blocks in a "
+     "14-block page with no setting changed. The docstring promises the opposite. The fix is "
+     "one line (`padding=0` in the reocr crop) plus a test that a re-read at unchanged "
+     "settings reproduces the text exactly; it is held because the operator is mid-review of "
+     "the current behaviour and a behaviour change should not arrive inside an evaluation. "
+     "`scripts/bench_models.py` sidesteps it by running both sides through `Pipeline.run()`"),
     ("Block colours that differ between two runs of the same page",
      "identity, not correctness: the chips and the table key on `id`, which is stable (D32). "
      "A re-read (`reocr_blocks`) keeps the colours on purpose, which is as far as this goes"),
